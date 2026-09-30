@@ -1,0 +1,8 @@
+     ============================================================
+     PAYROLL EXCEPTION LOG - ERROR DATASET
+     ============================================================
+ TIMESTAMP           RC      DESCRIPTION                                       RAW RECORD
+------------------------------------------------------------------------------------------------------------------------------------
+ 2026-09-30 10:38:00  ERR-01  INVALID EMP-ID OR HOURS (NON-NUMERIC/ZERO)          10003000C
+ 2026-09-30 10:38:00  ERR-02  EMPLOYEE ID NOT FOUND IN MASTER TABLE               99999400B
+ 2026-09-30 10:38:00  ERR-01  INVALID EMP-ID OR HOURS (NON-NUMERIC/ZERO)          ABCDE400A

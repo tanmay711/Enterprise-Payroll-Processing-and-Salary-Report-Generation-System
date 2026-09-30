@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Payroll System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        .header .subtitle {
+            font-size: 12px;
+            color: #64748b;
+            font-family: 'Consolas', monospace;
+        }
+        .mainframe-badge {
+            background: #065f46;
+            color: #6ee7b7;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 0 32px;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #94a3b8;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: #e2e8f0; }
+        .tab.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+        }
+
+        /* Content */
+        .content { padding: 24px 32px; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Cards */
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+        .card-body { padding: 16px 20px; }
+        .card-badge {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .badge-blue { background: #1e3a5f; color: #7dd3fc; }
+        .badge-green { background: #14532d; color: #86efac; }
+        .badge-red { background: #7f1d1d; color: #fca5a5; }
+        .badge-yellow { background: #713f12; color: #fde68a; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #0f172a;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 10px 12px;
+            border-top: 1px solid #1e293b;
+            color: #cbd5e1;
+        }
+        tr:hover td { background: #1a2640; }
+        .num { font-family: 'Consolas', monospace; text-align: right; }
+        .mono { font-family: 'Consolas', monospace; }
+        .dept-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'Consolas', monospace;
+        }
+        .dept-HR { background: #312e81; color: #a5b4fc; }
+        .dept-FIN { background: #064e3b; color: #6ee7b7; }
+        .dept-ENG { background: #78350f; color: #fcd34d; }
+        .dept-MKT { background: #7f1d1d; color: #fca5a5; }
+
+        /* Run Panel */
+        .run-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .run-card {
+            flex: 1;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        .run-btn {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .run-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4); }
+        .run-btn:active { transform: translateY(0); }
+        .run-btn:disabled {
+            background: #334155;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .run-btn.running {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-ok { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+        .status-err { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .status-wait { background: #eab308; box-shadow: 0 0 8px rgba(234, 179, 8, 0.5); }
+        .status-none { background: #475569; }
+
+        /* Terminal */
+        .terminal {
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #a3e635;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .terminal .err { color: #f87171; }
+        .terminal .step { color: #38bdf8; font-weight: bold; }
+        .terminal .rc-ok { color: #4ade80; }
+        .terminal .rc-bad { color: #f87171; }
+
+        /* Report view */
+        .report-pre {
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* Textarea */
+        .edit-area {
+            width: 100%;
+            min-height: 200px;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            color: #a3e635;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        .edit-area:focus { outline: none; border-color: #38bdf8; }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .save-btn:hover { background: #1d4ed8; }
+
+        /* Grid layout */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+        /* Stats */
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f1f5f9;
+            font-family: 'Consolas', monospace;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>⚙️ Enterprise Payroll System</h1>
+        <span class="subtitle">PAYPROC01 — GnuCOBOL Batch Engine</span>
+    </div>
+    <span class="mainframe-badge">z/OS EMULATION</span>
+</div>
+
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab" onclick="switchTab('data')">Input Data</div>
+    <div class="tab" onclick="switchTab('run')">Run Batch</div>
+    <div class="tab" onclick="switchTab('payslip')">Payslip Report</div>
+    <div class="tab" onclick="switchTab('dept')">Dept Summary</div>
+    <div class="tab" onclick="switchTab('exceptions')">Exception Log</div>
+</div>
+
+<div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="tab-panel active">
+        <div class="grid-3" id="stats-row">
+            <div class="run-card">
+                <div class="stat-value" id="stat-employees">—</div>
+                <div class="stat-label">EMPLOYEES IN MASTER</div>
+            </div>
+            <div class="run-card">
+                <div class="stat-value" id="stat-timecards">—</div>
+                <div class="stat-label">TIMECARD RECORDS</div>
+            </div>
+            <div class="run-card">
+                <div class="stat-value" id="stat-brackets">—</div>
+                <div class="stat-label">TAX BRACKETS</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3>👥 Employee Master (DB2)</h3>
+                    <span class="card-badge badge-blue" id="emp-count-badge"></span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <table>
+                        <thead><tr><th>EMP-ID</th><th>Name</th><th>Dept</th><th>Rate/Hr</th><th>Insurance</th></tr></thead>
+                        <tbody id="emp-table"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📊 Tax Rates Index (VSAM)</h3>
+                        <span class="card-badge badge-green" id="tax-count-badge"></span>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <table>
+                            <thead><tr><th>Bracket</th><th>State Tax</th><th>Federal Tax</th></tr></thead>
+                            <tbody id="tax-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📋 Report Status</h3>
+                    </div>
+                    <div class="card-body" id="report-status">
+                        <p style="color:#64748b">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INPUT DATA -->
+    <div id="panel-data" class="tab-panel">
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3>⏱️ Timecard Records</h3>
+                    <span class="card-badge badge-yellow" id="tc-count-badge"></span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <table>
+                        <thead><tr><th>EMP-ID</th><th>Hours</th><th>Tax Bracket</th><th>Status</th></tr></thead>
+                        <tbody id="tc-table"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>✏️ Edit Raw Timecards</h3>
+                </div>
+                <div class="card-body">
+                    <p style="font-size:12px; color:#64748b; margin-bottom:10px;">
+                        Format: <code style="color:#a3e635">XXXXXHHHB</code> — 5-digit EMP-ID, 3-digit hours (×10), 1 bracket letter (A-E)
+                    </p>
+                    <textarea id="tc-edit" class="edit-area" spellcheck="false"></textarea>
+                    <button class="save-btn" onclick="saveTimecards()">💾 Save Timecards</button>
+                    <span id="save-status" style="margin-left:12px; font-size:12px;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RUN BATCH -->
+    <div id="panel-run" class="tab-panel">
+        <div class="run-section">
+            <div class="run-card" style="flex:2">
+                <h3 style="margin-bottom:16px; color:#94a3b8;">JCL Batch Pipeline</h3>
+                <button id="run-btn" class="run-btn" onclick="runBatch()">
+                    ▶ SUBMIT JOB PAYPROC01
+                </button>
+                <p style="margin-top:12px; font-size:12px; color:#64748b;" id="run-info">
+                    Sorts → Compiles → Executes → Verifies
+                </p>
+            </div>
+            <div class="run-card" style="flex:1">
+                <div style="margin-bottom:12px;">
+                    <span class="status-indicator" id="rc-indicator"></span>
+                    <span style="font-size:13px; color:#94a3b8;">Return Code</span>
+                </div>
+                <div class="stat-value" id="rc-value">—</div>
+                <div class="stat-label" id="rc-time"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>🖥️ SYSOUT Console</h3>
+                <span class="card-badge badge-blue">JES2 Output</span>
+            </div>
+            <div class="card-body">
+                <div class="terminal" id="console-output">Awaiting job submission...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYSLIP REPORT -->
+    <div id="panel-payslip" class="tab-panel">
+        <div class="card">
+            <div class="card-header">
+                <h3>📄 MONTHLY_PAYSLIP_REPORT.txt</h3>
+                <span class="card-badge badge-green">SYSOUT Class A</span>
+            </div>
+            <div class="card-body">
+                <div class="report-pre" id="report-payslip">
+                    <div class="no-data">No report generated yet. Go to "Run Batch" tab to execute the pipeline.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEPT SUMMARY -->
+    <div id="panel-dept" class="tab-panel">
+        <div class="card">
+            <div class="card-header">
+                <h3>📊 DEPT_PAYROLL_SUMMARY.txt</h3>
+                <span class="card-badge badge-blue">Audit Report</span>
+            </div>
+            <div class="card-body">
+                <div class="report-pre" id="report-dept">
+                    <div class="no-data">No report generated yet. Go to "Run Batch" tab to execute the pipeline.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXCEPTIONS -->
+    <div id="panel-exceptions" class="tab-panel">
+        <div class="card">
+            <div class="card-header">
+                <h3>⚠️ PAYROLL_EXCEPTION_LOG.txt</h3>
+                <span class="card-badge badge-red">Error Dataset</span>
+            </div>
+            <div class="card-body">
+                <div class="report-pre" id="report-exceptions">
+                    <div class="no-data">No report generated yet. Go to "Run Batch" tab to execute the pipeline.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Tab switching ---
+    function switchTab(name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + name).classList.add('active');
+        event.target.classList.add('active');
+
+        if (name === 'payslip' || name === 'dept' || name === 'exceptions') loadReports();
+    }
+
+    // --- Load input data ---
+    async function loadData() {
+        try {
+            const res = await fetch('/api/data');
+            const data = await res.json();
+
+            // Stats
+            document.getElementById('stat-employees').textContent = data.employees.length;
+            document.getElementById('stat-timecards').textContent = data.timecards.length;
+            document.getElementById('stat-brackets').textContent = data.tax_rates.length;
+            document.getElementById('emp-count-badge').textContent = data.employees.length + ' records';
+            document.getElementById('tax-count-badge').textContent = data.tax_rates.length + ' brackets';
+            document.getElementById('tc-count-badge').textContent = data.timecards.length + ' records';
+
+            // Employee table
+            const empIds = new Set(data.employees.map(e => e.id));
+            document.getElementById('emp-table').innerHTML = data.employees.map(e => `
+                <tr>
+                    <td class="mono">${e.id}</td>
+                    <td>${e.name}</td>
+                    <td><span class="dept-badge dept-${e.dept}">${e.dept}</span></td>
+                    <td class="num">$${e.rate}</td>
+                    <td class="num">$${e.insurance}</td>
+                </tr>
+            `).join('');
+
+            // Tax table
+            document.getElementById('tax-table').innerHTML = data.tax_rates.map(t => `
+                <tr>
+                    <td class="mono" style="font-size:16px; font-weight:700;">${t.bracket}</td>
+                    <td class="num">${t.state}</td>
+                    <td class="num">${t.federal}</td>
+                </tr>
+            `).join('');
+
+            // Timecard table
+            document.getElementById('tc-table').innerHTML = data.timecards.map(tc => {
+                const isNumId = /^\d{5}$/.test(tc.emp_id);
+                const isValidHours = !isNaN(parseFloat(tc.hours)) && parseFloat(tc.hours) > 0;
+                const exists = empIds.has(tc.emp_id);
+                const validBracket = 'ABCDE'.includes(tc.bracket);
+                let status = '✅';
+                let statusClass = 'badge-green';
+                if (!isNumId) { status = 'ERR-01 Bad ID'; statusClass = 'badge-red'; }
+                else if (!isValidHours) { status = 'ERR-01 Bad Hours'; statusClass = 'badge-red'; }
+                else if (!exists) { status = 'ERR-02 Not Found'; statusClass = 'badge-red'; }
+                else if (!validBracket) { status = 'ERR-03 Bad Bracket'; statusClass = 'badge-red'; }
+                return `<tr>
+                    <td class="mono">${tc.emp_id}</td>
+                    <td class="num">${tc.hours}</td>
+                    <td class="mono">${tc.bracket}</td>
+                    <td><span class="card-badge ${statusClass}">${status}</span></td>
+                </tr>`;
+            }).join('');
+
+            // Raw edit
+            const rawLines = data.timecards.map(tc => {
+                const h = tc.hours.replace('.', '');
+                return tc.emp_id + h.padStart(3, '0') + tc.bracket;
+            });
+            document.getElementById('tc-edit').value = rawLines.join('\n') + '\n';
+
+        } catch (e) {
+            console.error('Failed to load data:', e);
+        }
+    }
+
+    // --- Load reports ---
+    async function loadReports() {
+        try {
+            const res = await fetch('/api/reports');
+            const data = await res.json();
+
+            if (data.payslip) document.getElementById('report-payslip').textContent = data.payslip;
+            if (data.dept_summary) document.getElementById('report-dept').textContent = data.dept_summary;
+            if (data.exceptions) document.getElementById('report-exceptions').textContent = data.exceptions;
+
+            // Report status on dashboard
+            const statusDiv = document.getElementById('report-status');
+            if (data.has_reports) {
+                statusDiv.innerHTML = `
+                    <p><span class="status-indicator status-ok"></span> Reports generated: <strong>${data.generated_at}</strong></p>
+                    <p style="margin-top:8px; font-size:12px; color:#64748b;">3 output datasets available</p>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <p><span class="status-indicator status-none"></span> No reports yet</p>
+                    <p style="margin-top:8px; font-size:12px; color:#64748b;">Run the batch to generate</p>
+                `;
+            }
+        } catch (e) {
+            console.error('Failed to load reports:', e);
+        }
+    }
+
+    // --- Run batch ---
+    async function runBatch() {
+        const btn = document.getElementById('run-btn');
+        const console_el = document.getElementById('console-output');
+        const rcValue = document.getElementById('rc-value');
+        const rcTime = document.getElementById('rc-time');
+        const rcInd = document.getElementById('rc-indicator');
+        const info = document.getElementById('run-info');
+
+        btn.disabled = true;
+        btn.classList.add('running');
+        btn.textContent = '⏳ JOB RUNNING...';
+        info.textContent = 'Executing batch pipeline via WSL...';
+        console_el.textContent = 'Submitting job PAYPROC01...\nPlease wait...\n';
+        rcValue.textContent = '...';
+        rcInd.className = 'status-indicator status-wait';
+
+        try {
+            const res = await fetch('/api/run', { method: 'POST' });
+            const data = await res.json();
+
+            // Colorize the output
+            let output = data.output || 'No output';
+            console_el.textContent = output;
+
+            const rc = data.return_code;
+            rcValue.textContent = 'RC=' + String(rc).padStart(4, '0');
+            rcTime.textContent = data.timestamp;
+            rcInd.className = 'status-indicator ' + (rc === 0 ? 'status-ok' : 'status-err');
+            info.textContent = rc === 0 ? '✅ Job completed successfully' : '❌ Job ended with errors';
+
+            // Reload reports
+            loadReports();
+            loadData();
+
+        } catch (e) {
+            console_el.textContent = 'ERROR: ' + e.message;
+            rcValue.textContent = 'ABEND';
+            rcInd.className = 'status-indicator status-err';
+            info.textContent = '❌ Failed to connect to server';
+        }
+
+        btn.disabled = false;
+        btn.classList.remove('running');
+        btn.textContent = '▶ SUBMIT JOB PAYPROC01';
+    }
+
+    // --- Save timecards ---
+    async function saveTimecards() {
+        const text = document.getElementById('tc-edit').value;
+        const statusEl = document.getElementById('save-status');
+        try {
+            const res = await fetch('/api/timecards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ timecards: text })
+            });
+            const data = await res.json();
+            if (data.success) {
+                statusEl.textContent = '✅ Saved!';
+                statusEl.style.color = '#4ade80';
+                loadData();
+            } else {
+                statusEl.textContent = '❌ ' + data.error;
+                statusEl.style.color = '#f87171';
+            }
+        } catch (e) {
+            statusEl.textContent = '❌ ' + e.message;
+            statusEl.style.color = '#f87171';
+        }
+        setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    }
+
+    // --- Init ---
+    loadData();
+    loadReports();
+</script>
+
+</body>
+</html>

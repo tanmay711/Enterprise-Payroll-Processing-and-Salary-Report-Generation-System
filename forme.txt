@@ -1,0 +1,5 @@
+cd "D:\College Assigments\TY\Mainframe\Cp\payroll-system"
+python app.py
+
+
+wsl -d Ubuntu -- bash -c "cd '/mnt/d/College Assigments/TY/Mainframe/Cp/payroll-system' && bash scripts/run_batch.sh"
