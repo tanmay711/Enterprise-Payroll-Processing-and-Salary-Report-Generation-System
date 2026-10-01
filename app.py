@@ -99,6 +99,150 @@ def get_report_time(filename):
         return None
 
 
+def parse_dept_summary():
+    """Parse DEPT_PAYROLL_SUMMARY.txt into structured list."""
+    content = read_report('DEPT_PAYROLL_SUMMARY.txt')
+    if not content:
+        return []
+    depts = []
+    lines = content.splitlines()
+    for line in lines:
+        parts = line.strip().split()
+        if len(parts) == 5 and parts[0] in ['HR', 'FIN', 'ENG', 'MKT']:
+            try:
+                depts.append({
+                    'dept': parts[0],
+                    'headcount': int(parts[1]),
+                    'gross': float(parts[2].replace(',', '')),
+                    'deduct': float(parts[3].replace(',', '')),
+                    'net': float(parts[4].replace(',', ''))
+                })
+            except ValueError:
+                continue
+    return depts
+
+
+def parse_payslip_report():
+    """Parse MONTHLY_PAYSLIP_REPORT.txt into structured employee list and totals."""
+    content = read_report('MONTHLY_PAYSLIP_REPORT.txt')
+    if not content:
+        return {'slips': [], 'totals': {}}
+    slips = []
+    totals = {}
+    lines = content.splitlines()
+    for line in lines:
+        s = line.strip()
+        if not s or s.startswith('='):
+            continue
+        if s.startswith('GRAND TOTALS:'):
+            parts = s.replace('GRAND TOTALS:', '').strip().split()
+            if len(parts) >= 3:
+                try:
+                    totals['gross'] = float(parts[0].replace(',', ''))
+                    totals['deduct'] = float(parts[1].replace(',', ''))
+                    totals['net'] = float(parts[2].replace(',', ''))
+                except ValueError:
+                    pass
+        elif s.startswith('TOTAL RECORDS PROCESSED:'):
+            val = s.split(':')[-1].strip()
+            totals['total_records'] = int(val) if val.isdigit() else val
+        elif s.startswith('VALID:'):
+            val = s.split(':')[-1].strip()
+            totals['valid_records'] = int(val) if val.isdigit() else val
+        elif s.startswith('ERRORS:'):
+            val = s.split(':')[-1].strip()
+            totals['error_records'] = int(val) if val.isdigit() else val
+        else:
+            parts = s.split()
+            if len(parts) >= 8 and parts[0].isdigit() and len(parts[0]) == 5:
+                try:
+                    emp_id = parts[0]
+                    dept = parts[-7]
+                    name = ' '.join(parts[1:-7])
+                    hours = float(parts[-6].replace(',', ''))
+                    reg_pay = float(parts[-5].replace(',', ''))
+                    ot_pay = float(parts[-4].replace(',', ''))
+                    gross = float(parts[-3].replace(',', ''))
+                    deduct = float(parts[-2].replace(',', ''))
+                    net = float(parts[-1].replace(',', ''))
+                    slips.append({
+                        'id': emp_id,
+                        'name': name,
+                        'dept': dept,
+                        'hours': hours,
+                        'reg_pay': reg_pay,
+                        'ot_pay': ot_pay,
+                        'gross': gross,
+                        'deduct': deduct,
+                        'net': net
+                    })
+                except (ValueError, IndexError):
+                    continue
+    return {'slips': slips, 'totals': totals}
+
+
+def parse_exception_log():
+    """Parse PAYROLL_EXCEPTION_LOG.txt into structured exceptions."""
+    content = read_report('PAYROLL_EXCEPTION_LOG.txt')
+    if not content:
+        return []
+    exceptions = []
+    lines = content.splitlines()
+    for line in lines:
+        s = line.strip()
+        if not s or s.startswith('=') or s.startswith('-') or s.startswith('TIMESTAMP') or s.startswith('PAYROLL'):
+            continue
+        parts = s.split()
+        if len(parts) >= 4 and parts[2].startswith('ERR-'):
+            ts = f"{parts[0]} {parts[1]}"
+            rc = parts[2]
+            raw_rec = parts[-1]
+            desc = " ".join(parts[3:-1])
+            exceptions.append({
+                'timestamp': ts,
+                'rc': rc,
+                'desc': desc,
+                'raw': raw_rec
+            })
+    return exceptions
+
+
+def get_analytics_data():
+    """Compile comprehensive analytics for charts."""
+    dept_summary = parse_dept_summary()
+    payslip_data = parse_payslip_report()
+    exceptions = parse_exception_log()
+    
+    # Calculate OT totals and dept OT breakdown
+    total_reg = sum(s['reg_pay'] for s in payslip_data['slips'])
+    total_ot = sum(s['ot_pay'] for s in payslip_data['slips'])
+    
+    dept_ot = {}
+    for s in payslip_data['slips']:
+        d = s['dept']
+        if d not in dept_ot:
+            dept_ot[d] = {'reg': 0.0, 'ot': 0.0}
+        dept_ot[d]['reg'] += s['reg_pay']
+        dept_ot[d]['ot'] += s['ot_pay']
+    
+    # Error code breakdown
+    err_counts = {}
+    for e in exceptions:
+        code = e['rc']
+        err_counts[code] = err_counts.get(code, 0) + 1
+
+    return {
+        'departments': dept_summary,
+        'employees': payslip_data['slips'],
+        'totals': payslip_data['totals'],
+        'total_reg_pay': total_reg,
+        'total_ot_pay': total_ot,
+        'dept_ot': dept_ot,
+        'exceptions': exceptions,
+        'error_counts': err_counts
+    }
+
+
 @app.route('/')
 def dashboard():
     return render_template('dashboard.html')
@@ -116,17 +260,25 @@ def get_data():
 
 @app.route('/api/reports')
 def get_reports():
-    """Return all output reports."""
+    """Return all output reports and structured analytics."""
     payslip = read_report('MONTHLY_PAYSLIP_REPORT.txt')
     dept = read_report('DEPT_PAYROLL_SUMMARY.txt')
     exceptions = read_report('PAYROLL_EXCEPTION_LOG.txt')
+    analytics = get_analytics_data()
     return jsonify({
         'payslip': payslip,
         'dept_summary': dept,
         'exceptions': exceptions,
+        'analytics': analytics,
         'generated_at': get_report_time('MONTHLY_PAYSLIP_REPORT.txt'),
         'has_reports': payslip is not None
     })
+
+
+@app.route('/api/analytics')
+def get_analytics():
+    """Dedicated endpoint for charts and graphs."""
+    return jsonify(get_analytics_data())
 
 
 @app.route('/api/run', methods=['POST'])
