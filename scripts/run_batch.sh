@@ -8,10 +8,14 @@
 
 set -e
 
+# Accept RACF User ID as first argument (defaults to IBMUSER)
+RACF_USER="${1:-IBMUSER}"
+
 echo "========================================================="
 echo " JOB: PAYPROC01 - ENTERPRISE PAYROLL BATCH ENGINE"
 echo " JOBCLASS: A   MSGCLASS: X   MSGLEVEL: (1,1)"
-echo " SUBMITTED: $(date '+%Y-%m-%d %H:%M:%S')"
+echo " SUBMITTED BY: $RACF_USER (RACF SAF EMULATION)"
+echo " SUBMITTED AT: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================================="
 echo ""
 
@@ -27,6 +31,21 @@ OUTPUT_DIR="$BASE_DIR/data/output"
 SRC_DIR="$BASE_DIR/src"
 
 RC=0
+
+#=====================================================================
+# STEP00: RACF DATASET INTEGRITY & SAF AUTHORIZATION CHECK
+#=====================================================================
+python3 "$BASE_DIR/security.py" verify "$RACF_USER"
+STEP00_RC=$?
+
+if [ $STEP00_RC -ne 0 ]; then
+    echo "========================================================="
+    echo " ** JOB ABENDED IN STEP00: RACF SECURITY VIOLATION"
+    echo " MAXIMUM RETURN CODE: RC=$(printf '%04d' $STEP00_RC)"
+    echo " ENDED: $(date '+%Y-%m-%d %H:%M:%S')"
+    echo "========================================================="
+    exit $STEP00_RC
+fi
 
 #=====================================================================
 # STEP01: VERIFY COMPILER (IEFBR14 EQUIVALENT)

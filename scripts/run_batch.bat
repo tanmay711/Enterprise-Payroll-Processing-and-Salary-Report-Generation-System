@@ -16,7 +16,7 @@ set "WIN_BASE=%~dp0.."
 for %%I in ("%WIN_BASE%") do set "WIN_BASE=%%~fI"
 
 REM Execute via WSL
-wsl -d Ubuntu -- bash -c "cd '%WIN_BASE%' 2>/dev/null; WSLPATH=$(wslpath '%WIN_BASE%'); cd \"$WSLPATH\" && bash scripts/run_batch.sh"
+wsl -d Ubuntu -- bash -c "cd '%WIN_BASE%' 2>/dev/null; WSLPATH=$(wslpath '%WIN_BASE%'); cd \"$WSLPATH\" && bash scripts/run_batch.sh %1"
 
 echo.
 echo =========================================================

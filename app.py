@@ -7,11 +7,21 @@ import os
 import subprocess
 import json
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, session
+import security
 
 app = Flask(__name__,
             template_folder='templates',
             static_folder='static')
+app.secret_key = 'ibm-mainframe-racf-saf-secret-key-2026'
+
+
+def get_current_user():
+    """Retrieve active RACF identity from headers, session, or default."""
+    userid = request.headers.get('X-RACF-User') or session.get('racf_user') or 'IBMUSER'
+    if userid not in security.RACF_USERS:
+        userid = 'IBMUSER'
+    return userid
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.join(BASE_DIR)
@@ -281,11 +291,117 @@ def get_analytics():
     return jsonify(get_analytics_data())
 
 
+# =====================================================================
+# RACF & SAF SECURITY API ENDPOINTS
+# =====================================================================
+@app.route('/api/auth/users')
+def get_auth_users():
+    """Return public metadata of predefined RACF identities."""
+    users_info = []
+    for uid, u in security.RACF_USERS.items():
+        users_info.append({
+            'userid': u['userid'],
+            'name': u['name'],
+            'group': u['group'],
+            'role': u['role'],
+            'default_auth': u['default_auth'],
+            'privileges': u['privileges']
+        })
+    return jsonify(users_info)
+
+
+@app.route('/api/auth/current')
+def get_current_user_info():
+    """Return currently active RACF user profile and permissions."""
+    uid = get_current_user()
+    user = security.RACF_USERS.get(uid, security.RACF_USERS['IBMUSER'])
+    return jsonify({
+        'user': user,
+        'can_submit': security.check_authority(uid, 'JOB.PAYPROC01.SUBMIT', 'EXECUTE')['permitted'],
+        'can_edit_timecards': security.check_authority(uid, 'DATA.INPUT.TIMECARDS', 'UPDATE')['permitted'],
+        'can_admin': security.check_authority(uid, 'SECURITY.RACF.CONFIG', 'ALTER')['permitted']
+    })
+
+
+@app.route('/api/auth/switch', methods=['POST'])
+def switch_user():
+    """Switch active RACF session identity."""
+    req_uid = request.json.get('userid', '').strip().upper()
+    if req_uid in security.RACF_USERS:
+        session['racf_user'] = req_uid
+        security.log_smf80_record(req_uid, 'LOGON', 'TSO.TERMINAL', 'CONTROL', 'PERMITTED', 0, 0, f'USER {req_uid} LOGGED ON TO SESSION')
+        return jsonify({'success': True, 'userid': req_uid, 'user': security.RACF_USERS[req_uid]})
+    return jsonify({'success': False, 'error': 'Invalid RACF User ID'}), 400
+
+
+@app.route('/api/security/status')
+def get_security_status():
+    """Return RACF security profiles, access matrix, and dataset integrity check."""
+    integrity = security.verify_dataset_integrity()
+    return jsonify({
+        'users': security.RACF_USERS,
+        'resource_profiles': security.RESOURCE_PROFILES,
+        'integrity': integrity,
+        'current_user': get_current_user()
+    })
+
+
+@app.route('/api/security/smf-logs')
+def get_smf_logs():
+    """Return recent SMF Type 80 security audit entries."""
+    limit = int(request.args.get('limit', 100))
+    return jsonify({'logs': security.get_smf80_logs(limit)})
+
+
+@app.route('/api/security/rehash', methods=['POST'])
+def rehash_datasets():
+    """Regenerate cryptographic baseline hashes (requires ALTER on SECURITY.RACF.CONFIG)."""
+    uid = get_current_user()
+    auth = security.check_authority(uid, 'SECURITY.RACF.CONFIG', 'ALTER')
+    if not auth['permitted']:
+        return jsonify({
+            'success': False,
+            'error': f"SAF RC={auth['saf_rc']:04d}: Insufficient authority to re-hash security manifest"
+        }), 403
+    
+    manifest = security.generate_integrity_signatures()
+    return jsonify({'success': True, 'manifest': manifest})
+
+
+# =====================================================================
+# BATCH EXECUTION & DATA WRITES (SAF PROTECTED)
+# =====================================================================
 @app.route('/api/run', methods=['POST'])
 def run_batch():
-    """Execute the COBOL payroll batch pipeline via WSL."""
+    """Execute the COBOL payroll batch pipeline via WSL with RACF authorization check."""
+    userid = get_current_user()
+
+    # 1. First Gate: SAF / RACF Authority Verification
+    auth = security.check_authority(userid, 'JOB.PAYPROC01.SUBMIT', 'EXECUTE')
+    if not auth['permitted']:
+        err_msg = (
+            f"//STEP00  EXEC PGM=RACFCHK,PARM='VALIDATE INTEGRITY & ACCESS'\n"
+            f"-----------------------------------------------------------\n"
+            f"  RACF SUBMITTER IDENTIFIER: {userid}\n"
+            f"  SAF STATUS: {auth['reason']}\n"
+            f"  ** SECURITY ABEND: SAF RC={auth['saf_rc']:04d} RACF RC={auth['racf_rc']:04d}\n"
+            f"=========================================================\n"
+            f" ** JOB ABENDED IN STEP00: RACF SECURITY VIOLATION\n"
+            f" MAXIMUM RETURN CODE: RC=0016\n"
+            f" SMF TYPE 80 AUDIT RECORD CREATED (STATUS=VIOLATION)\n"
+            f"========================================================="
+        )
+        return jsonify({
+            'success': False,
+            'return_code': 16,
+            'output': err_msg,
+            'security_violation': True,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    # 2. Execution with authorized UserID passed to JCL
     wsl_path = f"/mnt/d/College Assigments/TY/Mainframe/Cp/payroll-system"
-    cmd = f"cd '{wsl_path}' && bash scripts/run_batch.sh 2>&1"
+    cmd = f"cd '{wsl_path}' && bash scripts/run_batch.sh {userid} 2>&1"
 
     try:
         result = subprocess.run(
@@ -317,12 +433,23 @@ def run_batch():
 
 @app.route('/api/timecards', methods=['POST'])
 def save_timecards():
-    """Save updated timecard data."""
+    """Save updated timecard data with RACF authorization check."""
+    userid = get_current_user()
+
+    # Check UPDATE authority on DATA.INPUT.TIMECARDS
+    auth = security.check_authority(userid, 'DATA.INPUT.TIMECARDS', 'UPDATE')
+    if not auth['permitted']:
+        return jsonify({
+            'success': False,
+            'error': f"SAF RC={auth['saf_rc']:04d} RACF RC={auth['racf_rc']:04d}: User '{userid}' lacks UPDATE authority on DATA.INPUT.TIMECARDS"
+        }), 403
+
     data = request.json.get('timecards', '')
     filepath = os.path.join(DATA_DIR, 'input', 'raw_timecards.dat')
     try:
         with open(filepath, 'w', encoding='ascii', newline='\n') as f:
             f.write(data)
+        security.log_smf80_record(userid, 'DATA_UPDATE', 'DATA.INPUT.TIMECARDS', 'UPDATE', 'PERMITTED', 0, 0, 'TIMECARDS DATASET MODIFIED')
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})

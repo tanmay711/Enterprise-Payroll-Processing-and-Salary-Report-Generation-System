@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-11-17 23:14:09",
+  "algorithm": "SHA-256",
+  "generated_by": "IBMUSER (RACF SYSADMIN)",
+  "datasets": {
+    "employee_master.dat": {
+      "sha256": "57ef71de3b367abbf6215db81088729a92a69d014793f3f21124021f4307f7a2",
+      "bytes": 400,
+      "status": "SECURE"
+    },
+    "tax_rates_index.dat": {
+      "sha256": "73692bc2de98b588766c760645eb5f3cf159f072ffb380711e2b436d40eaef54",
+      "bytes": 40,
+      "status": "SECURE"
+    }
+  }
+}

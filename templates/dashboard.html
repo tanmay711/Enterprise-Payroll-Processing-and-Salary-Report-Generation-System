@@ -375,6 +375,132 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        /* RACF & Security Styles */
+        .user-session-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #172339;
+            border: 1px solid #38bdf8;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-session-badge:hover {
+            background: #1e3a5f;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+            transform: translateY(-1px);
+        }
+        .user-icon { font-size: 15px; }
+        .user-text { font-size: 12px; color: #f1f5f9; font-family: 'Consolas', monospace; }
+        .switch-pill {
+            font-size: 10px;
+            background: #2563eb;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card {
+            background: #172339;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 600px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+        }
+        .modal-header {
+            padding: 16px 20px;
+            background: #0f172a;
+            border-bottom: 1px solid #233554;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 { font-size: 15px; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: #f8fafc; }
+        .modal-body { padding: 20px; }
+        .user-select-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .user-option-card {
+            background: #0f172a;
+            border: 1px solid #233554;
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .user-option-card:hover {
+            border-color: #38bdf8;
+            background: #14223d;
+            transform: translateY(-2px);
+        }
+        .user-option-card.current {
+            border-color: #22c55e;
+            background: #0d2818;
+        }
+        .user-opt-name { font-weight: 700; font-size: 14px; color: #f8fafc; font-family: 'Consolas', monospace; }
+        .user-opt-role { font-size: 11.5px; color: #94a3b8; margin: 4px 0 8px 0; }
+        .user-opt-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+        }
+
+        /* Security Table Elements */
+        .sec-acl-tag {
+            font-size: 10.5px;
+            font-family: 'Consolas', monospace;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .acl-ALTER { background: #78350f; color: #fde68a; }
+        .acl-EXECUTE { background: #064e3b; color: #6ee7b7; }
+        .acl-UPDATE { background: #1e3a5f; color: #7dd3fc; }
+        .acl-READ { background: #1f2937; color: #cbd5e1; }
+        .acl-NONE { background: #7f1d1d; color: #fca5a5; }
+
+        .smf-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+        }
+        .smf-PERMITTED { background: #14532d; color: #86efac; }
+        .smf-VIOLATION { background: #7f1d1d; color: #fca5a5; }
     </style>
     <!-- Chart.js (Local offline bundle with CDN fallback) -->
     <script src="/static/js/chart.min.js"></script>
@@ -392,14 +518,20 @@
         <span class="subtitle">PAYPROC01 — GnuCOBOL Batch Engine</span>
     </div>
     <div class="header-badges">
+        <div class="user-session-badge" onclick="openUserModal()" title="Click to Switch RACF Security Identity">
+            <span class="user-icon">👤</span>
+            <span class="user-text">RACF: <strong id="header-user-id" style="color:#38bdf8;">IBMUSER</strong> (<span id="header-user-role">SYSADMIN</span>)</span>
+            <span class="switch-pill">Switch ▾</span>
+        </div>
         <span class="tech-badge">GnuCOBOL 3.1</span>
-        <span class="mainframe-badge">IBM z/OS EMULATION</span>
+        <span class="mainframe-badge">IBM z/OS RACF & SAF</span>
     </div>
 </div>
 
 <div class="tabs">
     <div class="tab active" onclick="switchTab('dashboard')"><span>📊</span> Overview</div>
     <div class="tab" onclick="switchTab('analytics')"><span>📈</span> Analytics & Charts</div>
+    <div class="tab" onclick="switchTab('security')"><span>🔒</span> RACF & Security</div>
     <div class="tab" onclick="switchTab('data')"><span>⏱️</span> Timecards & Input</div>
     <div class="tab" onclick="switchTab('refdata')"><span>👥</span> Reference Data (DB2/VSAM)</div>
     <div class="tab" onclick="switchTab('run')"><span>▶</span> Run Batch (JCL)</div>
@@ -512,6 +644,10 @@
 
                     <div style="background:#0f172a; border:1px solid #233554; border-radius:8px; padding:14px; font-size:12.5px; line-height:1.7;">
                         <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
+                            <span style="color:#94a3b8;">STEP00 (RACFCHK Dataset Integrity & SAF Auth)</span>
+                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
                             <span style="color:#94a3b8;">STEP01 (IEFBR14 Compiler Check)</span>
                             <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
                         </div>
@@ -602,6 +738,146 @@
         </div>
     </div>
 
+    <!-- TAB: RACF & SECURITY -->
+    <div id="panel-security" class="tab-panel">
+        <div class="grid-2">
+            <!-- Security Card 1: Active Identity & Authority -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🛡️ Active RACF Security Session</h3>
+                    <span class="card-badge badge-blue" id="sec-user-badge">SYSADMIN</span>
+                </div>
+                <div class="card-body">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                        <div>
+                            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">RACF USER IDENTIFIER</div>
+                            <div style="font-size:22px; font-weight:700; color:#38bdf8; font-family:'Consolas',monospace;" id="sec-user-id">IBMUSER</div>
+                            <div style="font-size:12px; color:#cbd5e1; margin-top:2px;" id="sec-user-name">Chief Security Officer / SysProg</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">SAF GROUP PROFILE</div>
+                            <div style="font-size:16px; font-weight:700; color:#f8fafc; font-family:'Consolas',monospace;" id="sec-group-id">SYSADMIN</div>
+                            <div style="font-size:11px; color:#6ee7b7; font-weight:600;" id="sec-default-auth">ALTER AUTHORITY</div>
+                        </div>
+                    </div>
+
+                    <div style="background:#0f172a; border:1px solid #233554; border-radius:8px; padding:12px; margin-bottom:16px; font-size:12px;">
+                        <div style="color:#94a3b8; margin-bottom:6px; font-weight:600;">ACTIVE PRIVILEGES & PERMISSIONS:</div>
+                        <div id="sec-privileges-pills" style="display:flex; flex-wrap:wrap; gap:6px;">
+                            <span class="sec-acl-tag acl-ALTER">ALTER (Full Control)</span>
+                            <span class="sec-acl-tag acl-EXECUTE">EXECUTE (JCL Submit)</span>
+                            <span class="sec-acl-tag acl-UPDATE">UPDATE (Datasets)</span>
+                            <span class="sec-acl-tag acl-READ">READ (Audit Logs)</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:10px;">
+                        <button class="save-btn" style="margin:0; flex:1;" onclick="openUserModal()">
+                            👤 Switch RACF Identity
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Card 2: Cryptographic Dataset Integrity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🔐 Cryptographic Dataset Integrity (Pervasive Encryption)</h3>
+                    <span class="card-badge badge-green" id="sec-integrity-badge">ALL HASHES VERIFIED</span>
+                </div>
+                <div class="card-body">
+                    <p style="font-size:12px; color:#94a3b8; margin-bottom:14px; line-height:1.5;">
+                        Validates SHA-256 cryptographic digests of master reference tables before batch execution. Tampering with salary rates or tax brackets causes an immediate <strong>Security ABEND (RC=0016)</strong>.
+                    </p>
+                    
+                    <div style="background:#0f172a; border:1px solid #233554; border-radius:8px; padding:12px; margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:8px; margin-bottom:8px;">
+                            <div>
+                                <div style="font-size:12px; font-weight:600; color:#f8fafc;">employee_master.dat (DB2)</div>
+                                <div style="font-size:10px; font-family:'Consolas',monospace; color:#64748b;" id="sec-hash-emp">SHA-256: Loading...</div>
+                            </div>
+                            <span class="card-badge badge-green" id="sec-status-emp">MATCHED</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:12px; font-weight:600; color:#f8fafc;">tax_rates_index.dat (VSAM)</div>
+                                <div style="font-size:10px; font-family:'Consolas',monospace; color:#64748b;" id="sec-hash-tax">SHA-256: Loading...</div>
+                            </div>
+                            <span class="card-badge badge-green" id="sec-status-tax">MATCHED</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:11px; color:#64748b;">Manifest: <span id="sec-manifest-time">—</span></div>
+                        <button class="save-btn" style="margin:0; background:#065f46; font-size:12px; padding:6px 14px;" onclick="rehashDatasets()">
+                            ⚡ Re-generate Hashes (SYSADMIN)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RACF Access Control Matrix (ACL) -->
+        <div class="card">
+            <div class="card-header">
+                <h3>📋 RACF Resource Access Control Matrix (ACL)</h3>
+                <span class="card-badge badge-blue">SAF Class Profiles</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Protected Resource Profile</th>
+                            <th>Class</th>
+                            <th>Description</th>
+                            <th>Required</th>
+                            <th>SYSADMIN</th>
+                            <th>OPERGRP</th>
+                            <th>PAYROLL</th>
+                            <th>AUDITGRP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sec-matrix-table">
+                        <tr><td colspan="8" class="no-data">Loading RACF profiles...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Live SMF Type 80 Security Audit Trail -->
+        <div class="card">
+            <div class="card-header">
+                <h3>📜 Live SMF Type 80 Security Audit Trail</h3>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span class="card-badge badge-yellow" id="smf-log-count">0 events</span>
+                    <button class="save-btn" style="margin:0; padding:4px 10px; font-size:11.5px; background:#1e293b; border:1px solid #334155;" onclick="loadSecurityData()">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="card-body" style="padding:0; max-height:420px; overflow-y:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User ID</th>
+                            <th>Group</th>
+                            <th>Event</th>
+                            <th>Resource Profile</th>
+                            <th>Intent</th>
+                            <th>Result</th>
+                            <th>SAF RC</th>
+                            <th>Audit Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="smf-log-table">
+                        <tr><td colspan="9" class="no-data">Loading SMF audit records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- TAB 3: TIMECARDS & INPUT DATA -->
     <div id="panel-data" class="tab-panel">
         <div class="grid-2">
@@ -678,12 +954,20 @@
     <div id="panel-run" class="tab-panel">
         <div class="run-section">
             <div class="run-card" style="flex:2">
-                <h3 style="margin-bottom:16px; color:#cbd5e1; font-size:17px;">Mainframe JCL Batch Pipeline Orchestrator</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="color:#cbd5e1; font-size:17px;">Mainframe JCL Batch Pipeline Orchestrator</h3>
+                    <div style="font-size:12px; font-family:'Consolas',monospace; background:#0f172a; padding:4px 10px; border-radius:6px; border:1px solid #233554;">
+                        RACF Submitter: <strong id="run-user-badge" style="color:#38bdf8;">IBMUSER</strong>
+                    </div>
+                </div>
+                <div id="run-auth-warning" style="display:none; background:#7f1d1d; color:#fca5a5; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:14px; text-align:left;">
+                    ⚠️ <strong>SAF Security Notice:</strong> Active identity lacks <code>EXECUTE</code> authority on <code>JOB.PAYPROC01.SUBMIT</code>. Submitting this job will result in a <strong>Security ABEND (RC=0016)</strong> logged to SMF Type 80.
+                </div>
                 <button id="run-btn" class="run-btn" onclick="runBatch()">
                     <span>▶</span> SUBMIT JOB PAYPROC01
                 </button>
                 <p style="margin-top:14px; font-size:12.5px; color:#94a3b8;" id="run-info">
-                    Executes: <strong>STEP01 (Compiler)</strong> → <strong>STEP02 (DFSORT)</strong> → <strong>STEP03 (IKFCBL00)</strong> → <strong>STEP04 (PAYPROC01)</strong> → <strong>STEP05 (Verify)</strong>
+                    Executes: <strong>STEP00 (RACF/SAF Security)</strong> → <strong>STEP01 (Compiler)</strong> → <strong>STEP02 (DFSORT)</strong> → <strong>STEP03 (IKFCBL00)</strong> → <strong>STEP04 (PAYPROC01)</strong> → <strong>STEP05 (Verify)</strong>
                 </p>
             </div>
             <div class="run-card" style="flex:1">
@@ -754,6 +1038,24 @@
 
 </div>
 
+<!-- RACF USER SWITCHER MODAL -->
+<div id="userModal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><span>👤</span> Switch RACF Security Identity</h3>
+            <button class="modal-close" onclick="closeUserModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">
+                Select a predefined IBM Mainframe RACF Identity to test role-based access control (RBAC), authorization gates, and SMF Type 80 security logging:
+            </p>
+            <div class="user-select-grid" id="modal-user-grid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Global chart instances registry
     const charts = {};
@@ -768,6 +1070,223 @@
         Chart.defaults.color = darkChartDefaults.color;
         Chart.defaults.borderColor = darkChartDefaults.borderColor;
         Chart.defaults.font.family = darkChartDefaults.font.family;
+    }
+
+    let currentRacfUser = 'IBMUSER';
+    let availableUsers = [];
+
+    // --- Modal Controls ---
+    async function openUserModal() {
+        const modal = document.getElementById('userModal');
+        const grid = document.getElementById('modal-user-grid');
+        modal.classList.add('active');
+
+        try {
+            const res = await fetch('/api/auth/users');
+            availableUsers = await res.json();
+            grid.innerHTML = availableUsers.map(u => {
+                const isCur = (u.userid === currentRacfUser);
+                return `
+                    <div class="user-option-card ${isCur ? 'current' : ''}" onclick="switchUser('${u.userid}')">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="user-opt-name">${u.userid}</span>
+                            <span class="user-opt-badge sec-acl-tag acl-${u.default_auth}">${u.default_auth}</span>
+                        </div>
+                        <div class="user-opt-role">${u.name}</div>
+                        <div style="font-size:11px; color:#64748b; font-family:'Consolas',monospace;">Group: <strong>${u.group}</strong></div>
+                        <div style="font-size:10.5px; color:${isCur ? '#4ade80' : '#38bdf8'}; margin-top:6px; font-weight:600;">
+                            ${isCur ? '● ACTIVE SESSION' : 'Click to Switch →'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error('Failed to load users:', e);
+        }
+    }
+
+    function closeUserModal() {
+        document.getElementById('userModal').classList.remove('active');
+    }
+
+    function handleModalOverlayClick(e) {
+        if (e.target.id === 'userModal') closeUserModal();
+    }
+
+    async function switchUser(userid) {
+        try {
+            const res = await fetch('/api/auth/switch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userid })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentRacfUser = userid;
+                closeUserModal();
+                await loadCurrentUser();
+                await loadSecurityData();
+            }
+        } catch (e) {
+            console.error('Failed to switch user:', e);
+        }
+    }
+
+    async function loadCurrentUser() {
+        try {
+            const res = await fetch('/api/auth/current', {
+                headers: { 'X-RACF-User': currentRacfUser }
+            });
+            const data = await res.json();
+            const u = data.user;
+            currentRacfUser = u.userid;
+
+            // Header elements
+            document.getElementById('header-user-id').textContent = u.userid;
+            document.getElementById('header-user-role').textContent = u.group;
+
+            // Security Tab Elements
+            const secBadge = document.getElementById('sec-user-badge');
+            if (secBadge) secBadge.textContent = u.group;
+            const secId = document.getElementById('sec-user-id');
+            if (secId) secId.textContent = u.userid;
+            const secName = document.getElementById('sec-user-name');
+            if (secName) secName.textContent = u.name;
+            const secGroup = document.getElementById('sec-group-id');
+            if (secGroup) secGroup.textContent = u.group;
+            const secAuth = document.getElementById('sec-default-auth');
+            if (secAuth) secAuth.textContent = u.default_auth + ' AUTHORITY';
+
+            const pills = document.getElementById('sec-privileges-pills');
+            if (pills) {
+                pills.innerHTML = u.privileges.map(p => `<span class="sec-acl-tag acl-${p}">${p}</span>`).join('');
+            }
+
+            // Run Tab submitter badge
+            const runBadge = document.getElementById('run-user-badge');
+            if (runBadge) runBadge.textContent = `${u.userid} (${u.default_auth})`;
+
+            // Permission warning on Run tab
+            const warningEl = document.getElementById('run-auth-warning');
+            if (warningEl) {
+                warningEl.style.display = data.can_submit ? 'none' : 'block';
+            }
+
+        } catch (e) {
+            console.error('Failed to load current user:', e);
+        }
+    }
+
+    async function loadSecurityData() {
+        try {
+            const resStatus = await fetch('/api/security/status', {
+                headers: { 'X-RACF-User': currentRacfUser }
+            });
+            const secData = await resStatus.json();
+
+            // Cryptographic Dataset Integrity
+            const integrity = secData.integrity;
+            if (integrity) {
+                const badge = document.getElementById('sec-integrity-badge');
+                if (badge) {
+                    badge.textContent = integrity.verified ? 'ALL HASHES VERIFIED' : 'TAMPERING DETECTED';
+                    badge.className = 'card-badge ' + (integrity.verified ? 'badge-green' : 'badge-red');
+                }
+                const manifestTime = document.getElementById('sec-manifest-time');
+                if (manifestTime) manifestTime.textContent = integrity.manifest_time;
+
+                for (const item of integrity.details || []) {
+                    if (item.dataset === 'employee_master.dat') {
+                        const hashEl = document.getElementById('sec-hash-emp');
+                        if (hashEl) hashEl.textContent = 'SHA-256: ' + item.current_hash;
+                        const statusEl = document.getElementById('sec-status-emp');
+                        if (statusEl) {
+                            statusEl.textContent = item.match ? 'VERIFIED' : 'TAMPERED';
+                            statusEl.className = 'card-badge ' + (item.match ? 'badge-green' : 'badge-red');
+                        }
+                    } else if (item.dataset === 'tax_rates_index.dat') {
+                        const hashEl = document.getElementById('sec-hash-tax');
+                        if (hashEl) hashEl.textContent = 'SHA-256: ' + item.current_hash;
+                        const statusEl = document.getElementById('sec-status-tax');
+                        if (statusEl) {
+                            statusEl.textContent = item.match ? 'VERIFIED' : 'TAMPERED';
+                            statusEl.className = 'card-badge ' + (item.match ? 'badge-green' : 'badge-red');
+                        }
+                    }
+                }
+            }
+
+            // RACF Access Control Matrix
+            const profiles = secData.resource_profiles || {};
+            const matrixTbody = document.getElementById('sec-matrix-table');
+            if (matrixTbody) {
+                matrixTbody.innerHTML = Object.entries(profiles).map(([profName, prof]) => `
+                    <tr>
+                        <td class="mono" style="font-weight:700; color:#38bdf8;">${profName}</td>
+                        <td><span class="card-badge badge-blue">${prof.class}</span></td>
+                        <td style="font-size:12px; color:#cbd5e1;">${prof.description}</td>
+                        <td><span class="sec-acl-tag acl-${prof.required}">${prof.required}</span></td>
+                        <td><span class="sec-acl-tag acl-${prof.acl.SYSADMIN || 'NONE'}">${prof.acl.SYSADMIN || 'NONE'}</span></td>
+                        <td><span class="sec-acl-tag acl-${prof.acl.OPERGRP || 'NONE'}">${prof.acl.OPERGRP || 'NONE'}</span></td>
+                        <td><span class="sec-acl-tag acl-${prof.acl.PAYROLL || 'NONE'}">${prof.acl.PAYROLL || 'NONE'}</span></td>
+                        <td><span class="sec-acl-tag acl-${prof.acl.AUDITGRP || 'NONE'}">${prof.acl.AUDITGRP || 'NONE'}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            // SMF Type 80 Audit Logs
+            const resLogs = await fetch('/api/security/smf-logs?limit=50');
+            const logData = await resLogs.json();
+            const logs = logData.logs || [];
+            
+            const logCountEl = document.getElementById('smf-log-count');
+            if (logCountEl) logCountEl.textContent = `${logs.length} SMF records`;
+
+            const smfTbody = document.getElementById('smf-log-table');
+            if (smfTbody) {
+                if (logs.length === 0) {
+                    smfTbody.innerHTML = '<tr><td colspan="9" class="no-data">No SMF Type 80 records generated yet.</td></tr>';
+                } else {
+                    smfTbody.innerHTML = logs.map(l => `
+                        <tr>
+                            <td class="mono" style="font-size:11px; white-space:nowrap; color:#94a3b8;">${l.timestamp}</td>
+                            <td class="mono" style="font-weight:700; color:#38bdf8;">${l.userid}</td>
+                            <td class="mono" style="font-size:11.5px;">${l.group}</td>
+                            <td><span class="card-badge badge-blue">${l.event}</span></td>
+                            <td class="mono" style="font-size:11.5px; color:#cbd5e1;">${l.resource}</td>
+                            <td><span class="sec-acl-tag acl-${l.intent}">${l.intent}</span></td>
+                            <td><span class="smf-badge smf-${l.status}">${l.status}</span></td>
+                            <td class="mono" style="font-weight:700; color:${l.saf_rc === 'RC=0000' ? '#4ade80' : '#f87171'};">${l.saf_rc}</td>
+                            <td style="font-size:11.5px; color:#94a3b8;">${l.details}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+        } catch (e) {
+            console.error('Failed to load security data:', e);
+        }
+    }
+
+    async function rehashDatasets() {
+        try {
+            const res = await fetch('/api/security/rehash', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-RACF-User': currentRacfUser
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ RACF Security Manifest: Cryptographic SHA-256 signatures updated successfully.');
+                await loadSecurityData();
+            } else {
+                alert('❌ Security Violation: ' + (data.error || 'Access Denied'));
+            }
+        } catch (e) {
+            alert('❌ Network error: ' + e.message);
+        }
     }
 
     // --- Tab switching ---
@@ -789,6 +1308,9 @@
 
         if (name === 'payslip' || name === 'dept' || name === 'exceptions') {
             loadReports();
+        }
+        if (name === 'security') {
+            loadSecurityData();
         }
     }
 
@@ -1218,15 +1740,21 @@
         btn.disabled = true;
         btn.classList.add('running');
         btn.innerHTML = '<span>⏳</span> JOB PAYPROC01 RUNNING...';
-        info.innerHTML = '<span style="color:#fcd34d;">Executing 5-step batch pipeline via WSL Ubuntu...</span>';
-        console_el.textContent = '>> SUBMITTING BATCH JOB PAYPROC01 (CLASS=A)...\n>> DISPATCHING TO WSL GnuCOBOL WORKSPACE...\n\n';
+        info.innerHTML = '<span style="color:#fcd34d;">Executing 6-step batch pipeline via WSL Ubuntu...</span>';
+        console_el.textContent = `>> SUBMITTING BATCH JOB PAYPROC01 (CLASS=A)...\n>> RACF SUBMITTER: ${currentRacfUser}\n>> DISPATCHING TO WSL GnuCOBOL WORKSPACE...\n\n`;
         rcValue.textContent = 'RUNNING';
         rcInd.className = 'status-indicator status-wait';
         statusBadge.textContent = 'RUNNING';
         statusBadge.className = 'card-badge badge-yellow';
 
         try {
-            const res = await fetch('/api/run', { method: 'POST' });
+            const res = await fetch('/api/run', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-RACF-User': currentRacfUser
+                }
+            });
             const data = await res.json();
 
             console_el.textContent = data.output || 'No output received.';
@@ -1238,12 +1766,18 @@
             overviewRc.textContent = rcFormatted;
             rcTime.textContent = 'Ended: ' + data.timestamp;
 
-            if (rc === 0) {
+            if (data.security_violation || rc === 16) {
+                rcInd.className = 'status-indicator status-err';
+                overviewRc.style.color = '#f87171';
+                statusBadge.textContent = 'SECURITY ABEND (RC=0016)';
+                statusBadge.className = 'card-badge badge-red';
+                info.innerHTML = `🔒 <span style="color:#f87171; font-weight:600;">SAF Security Violation — Access Denied for ${currentRacfUser}</span>`;
+            } else if (rc === 0) {
                 rcInd.className = 'status-indicator status-ok';
                 overviewRc.style.color = '#4ade80';
                 statusBadge.textContent = 'COMPLETED (RC=0000)';
                 statusBadge.className = 'card-badge badge-green';
-                info.innerHTML = '✅ <span style="color:#4ade80; font-weight:600;">Job completed successfully — All 5 Steps RC=0000</span>';
+                info.innerHTML = '✅ <span style="color:#4ade80; font-weight:600;">Job completed successfully — All 6 Steps RC=0000</span>';
             } else {
                 rcInd.className = 'status-indicator status-err';
                 overviewRc.style.color = '#f87171';
@@ -1252,9 +1786,10 @@
                 info.innerHTML = `❌ <span style="color:#f87171; font-weight:600;">Job ABEND with ${rcFormatted}</span>`;
             }
 
-            // Immediately reload reports, parsed data, and dynamically re-render all charts
+            // Immediately reload reports, parsed data, security audit logs, and charts
             await loadReports();
             await loadData();
+            await loadSecurityData();
 
         } catch (e) {
             console_el.textContent += '\n\n** COMMUNICATION ERROR: ' + e.message;
@@ -1275,26 +1810,32 @@
         try {
             const res = await fetch('/api/timecards', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-RACF-User': currentRacfUser
+                },
                 body: JSON.stringify({ timecards: text })
             });
             const data = await res.json();
             if (data.success) {
                 statusEl.innerHTML = '<span style="color:#4ade80; font-weight:600;">✅ Saved to raw_timecards.dat!</span>';
                 await loadData();
+                await loadSecurityData();
             } else {
                 statusEl.innerHTML = '<span style="color:#f87171; font-weight:600;">❌ ' + data.error + '</span>';
             }
         } catch (e) {
             statusEl.innerHTML = '<span style="color:#f87171; font-weight:600;">❌ ' + e.message + '</span>';
         }
-        setTimeout(() => { statusEl.innerHTML = ''; }, 3500);
+        setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
     }
 
     // Initialize application on DOM ready
     window.addEventListener('DOMContentLoaded', () => {
+        loadCurrentUser();
         loadData();
         loadReports();
+        loadSecurityData();
     });
 </script>
 
