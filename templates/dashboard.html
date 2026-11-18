@@ -1188,6 +1188,7 @@
             const tcBadge = document.getElementById('tc-auth-badge');
             const tcAlert = document.getElementById('tc-auth-alert');
             const tcSaveBtn = document.getElementById('tc-save-btn');
+            const tcEdit = document.getElementById('tc-edit');
 
             if (tcBadge && tcAlert) {
                 if (data.can_edit_timecards) {
@@ -1202,16 +1203,32 @@
                         tcSaveBtn.disabled = false;
                         tcSaveBtn.style.opacity = '1';
                         tcSaveBtn.style.cursor = 'pointer';
-                        tcSaveBtn.title = 'Save updated timecard dataset';
+                        tcSaveBtn.innerHTML = '💾 Save Timecards Dataset';
+                    }
+                    if (tcEdit) {
+                        tcEdit.readOnly = false;
+                        tcEdit.style.borderColor = '#334155';
+                        tcEdit.style.cursor = 'text';
                     }
                 } else {
                     tcBadge.textContent = 'READ-ONLY (LACKS UPDATE)';
                     tcBadge.className = 'card-badge badge-red';
                     tcAlert.innerHTML = `
                         <div style="background:#7f1d1d; color:#fca5a5; border:1px solid #b91c1c; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:12px;">
-                            🔒 <strong>SAF Security Restriction:</strong> User <code>${u.userid}</code> only has <code>READ</code> access on <code>DATA.INPUT.TIMECARDS</code>. Modifying this dataset is restricted. Clicking Save will trigger a <strong>SAF RC=0008 Security Violation</strong>.
+                            🔒 <strong>SAF Security Restriction:</strong> User <code>${u.userid}</code> only has <code>READ</code> access on <code>DATA.INPUT.TIMECARDS</code>. Editing is locked. Attempting to save will trigger a <strong>SAF RC=0008 Security Violation</strong>.
                         </div>
                     `;
+                    if (tcSaveBtn) {
+                        tcSaveBtn.disabled = true;
+                        tcSaveBtn.style.opacity = '0.5';
+                        tcSaveBtn.style.cursor = 'not-allowed';
+                        tcSaveBtn.innerHTML = '🔒 Editing Locked (Read-Only)';
+                    }
+                    if (tcEdit) {
+                        tcEdit.readOnly = true;
+                        tcEdit.style.borderColor = '#7f1d1d';
+                        tcEdit.style.cursor = 'not-allowed';
+                    }
                 }
             }
 
@@ -1354,6 +1371,9 @@
         }
         if (name === 'security') {
             loadSecurityData();
+        }
+        if (name === 'data' || name === 'run') {
+            loadCurrentUser();
         }
     }
 
