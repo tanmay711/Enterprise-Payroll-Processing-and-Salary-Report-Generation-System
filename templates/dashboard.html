@@ -896,9 +896,13 @@
             <div class="card">
                 <div class="card-header">
                     <h3>✏️ Modify Raw Timecard Dataset</h3>
-                    <span class="card-badge badge-blue">Fixed-Width 9-Byte</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="card-badge badge-green" id="tc-auth-badge">UPDATE PERMITTED</span>
+                        <span class="card-badge badge-blue">Fixed-Width 9-Byte</span>
+                    </div>
                 </div>
                 <div class="card-body">
+                    <div id="tc-auth-alert"></div>
                     <p style="font-size:12px; color:#94a3b8; margin-bottom:12px; line-height:1.5;">
                         Record Format: <code style="color:#a3e635; font-weight:700;">XXXXXHHHB</code><br>
                         • Cols 1–5: Employee ID (e.g. <code>10001</code>)<br>
@@ -907,7 +911,7 @@
                     </p>
                     <textarea id="tc-edit" class="edit-area" spellcheck="false"></textarea>
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
-                        <button class="save-btn" onclick="saveTimecards()">💾 Save Timecards Dataset</button>
+                        <button class="save-btn" id="tc-save-btn" onclick="saveTimecards()">💾 Save Timecards Dataset</button>
                         <span id="save-status" style="font-size:12px;"></span>
                     </div>
                 </div>
@@ -1086,6 +1090,8 @@
             availableUsers = await res.json();
             grid.innerHTML = availableUsers.map(u => {
                 const isCur = (u.userid === currentRacfUser);
+                const canSubmit = u.privileges.includes('EXECUTE') || u.privileges.includes('ALTER');
+                const canEdit = u.privileges.includes('UPDATE') || u.privileges.includes('ALTER');
                 return `
                     <div class="user-option-card ${isCur ? 'current' : ''}" onclick="switchUser('${u.userid}')">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1094,7 +1100,13 @@
                         </div>
                         <div class="user-opt-role">${u.name}</div>
                         <div style="font-size:11px; color:#64748b; font-family:'Consolas',monospace;">Group: <strong>${u.group}</strong></div>
-                        <div style="font-size:10.5px; color:${isCur ? '#4ade80' : '#38bdf8'}; margin-top:6px; font-weight:600;">
+                        
+                        <div style="margin-top:8px; padding-top:6px; border-top:1px solid #1e293b; font-size:11px; line-height:1.6;">
+                            <div style="color:${canSubmit ? '#4ade80' : '#f87171'}">${canSubmit ? '✅ Can Submit JCL Batch' : '❌ Cannot Submit Batch'}</div>
+                            <div style="color:${canEdit ? '#4ade80' : '#f87171'}">${canEdit ? '✅ Can Edit Timecards' : '🔒 Read-Only Datasets'}</div>
+                        </div>
+
+                        <div style="font-size:10.5px; color:${isCur ? '#4ade80' : '#38bdf8'}; margin-top:8px; font-weight:600;">
                             ${isCur ? '● ACTIVE SESSION' : 'Click to Switch →'}
                         </div>
                     </div>
@@ -1170,6 +1182,37 @@
             const warningEl = document.getElementById('run-auth-warning');
             if (warningEl) {
                 warningEl.style.display = data.can_submit ? 'none' : 'block';
+            }
+
+            // Timecard update permissions display on Timecards tab
+            const tcBadge = document.getElementById('tc-auth-badge');
+            const tcAlert = document.getElementById('tc-auth-alert');
+            const tcSaveBtn = document.getElementById('tc-save-btn');
+
+            if (tcBadge && tcAlert) {
+                if (data.can_edit_timecards) {
+                    tcBadge.textContent = 'UPDATE PERMITTED';
+                    tcBadge.className = 'card-badge badge-green';
+                    tcAlert.innerHTML = `
+                        <div style="background:#064e3b; color:#6ee7b7; border:1px solid #047857; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:12px;">
+                            ✅ <strong>RACF Authority:</strong> User <code>${u.userid}</code> has <code>UPDATE</code> authority on <code>DATA.INPUT.TIMECARDS</code>. You are authorized to modify and save employee timecard records.
+                        </div>
+                    `;
+                    if (tcSaveBtn) {
+                        tcSaveBtn.disabled = false;
+                        tcSaveBtn.style.opacity = '1';
+                        tcSaveBtn.style.cursor = 'pointer';
+                        tcSaveBtn.title = 'Save updated timecard dataset';
+                    }
+                } else {
+                    tcBadge.textContent = 'READ-ONLY (LACKS UPDATE)';
+                    tcBadge.className = 'card-badge badge-red';
+                    tcAlert.innerHTML = `
+                        <div style="background:#7f1d1d; color:#fca5a5; border:1px solid #b91c1c; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:12px;">
+                            🔒 <strong>SAF Security Restriction:</strong> User <code>${u.userid}</code> only has <code>READ</code> access on <code>DATA.INPUT.TIMECARDS</code>. Modifying this dataset is restricted. Clicking Save will trigger a <strong>SAF RC=0008 Security Violation</strong>.
+                        </div>
+                    `;
+                }
             }
 
         } catch (e) {
