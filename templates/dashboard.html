@@ -3,506 +3,788 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Payroll System — Mainframe Dashboard</title>
+    <title>Enterprise Payroll System — IBM z/OS Architecture</title>
     <style>
+        :root {
+            --bg-base: #090d16;
+            --bg-surface: #111827;
+            --bg-elevated: #1e293b;
+            --bg-input: #0b1120;
+            --border-color: #2e3a4d;
+            --border-subtle: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-blue-subtle: rgba(59, 130, 246, 0.12);
+            --accent-green: #10b981;
+            --accent-green-subtle: rgba(16, 185, 129, 0.12);
+            --accent-amber: #f59e0b;
+            --accent-amber-subtle: rgba(245, 158, 11, 0.12);
+            --accent-rose: #f43f5e;
+            --accent-rose-subtle: rgba(244, 63, 94, 0.12);
+            --accent-purple: #8b5cf6;
+            --accent-purple-subtle: rgba(139, 92, 246, 0.12);
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background: #0b1120;
-            color: #e2e8f0;
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
             min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-bottom: 1px solid #334155;
-            padding: 16px 32px;
+        /* Top Enterprise Navbar */
+        .navbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-        .header-left { display: flex; align-items: center; gap: 16px; }
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #f8fafc;
-            letter-spacing: -0.3px;
-        }
-        .header .subtitle {
-            font-size: 12px;
-            color: #94a3b8;
-            font-family: 'Consolas', monospace;
-        }
-        .header-badges { display: flex; gap: 8px; align-items: center; }
-        .mainframe-badge {
-            background: #065f46;
-            color: #6ee7b7;
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-family: 'Consolas', monospace;
-            font-weight: 600;
-        }
-        .tech-badge {
-            background: #1e3a5f;
-            color: #7dd3fc;
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-family: 'Consolas', monospace;
-            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background: #111c30;
-            border-bottom: 1px solid #1e293b;
-            padding: 0 32px;
-            overflow-x: auto;
-        }
-        .tab {
-            padding: 14px 20px;
-            cursor: pointer;
-            font-size: 13.5px;
-            font-weight: 500;
-            color: #94a3b8;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            white-space: nowrap;
+        .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 14px;
         }
-        .tab:hover { color: #f1f5f9; background: rgba(255,255,255,0.02); }
-        .tab.active {
-            color: #38bdf8;
-            border-bottom-color: #38bdf8;
+
+        .brand-logo {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: -0.5px;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            margin-top: 1px;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sys-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            padding: 5px 11px;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+        }
+
+        .status-dot.running { background-color: var(--accent-amber); animation: pulseDot 1.2s infinite; }
+        .status-dot.error { background-color: var(--accent-rose); }
+        @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* User Switcher Pill */
+        .user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .user-pill:hover {
+            border-color: var(--accent-blue);
+            background: #223249;
+        }
+
+        .user-pill-role {
+            font-family: var(--font-mono);
             font-weight: 600;
+            color: var(--accent-blue);
         }
 
-        /* Content */
-        .content { padding: 24px 32px; max-width: 1600px; margin: 0 auto; }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .user-pill-badge {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--accent-blue-subtle);
+            color: var(--accent-blue);
+        }
 
-        /* KPI Cards Grid */
-        .kpi-grid {
+        /* Nav Tabs Bar */
+        .nav-tabs {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 28px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            outline: none;
+            padding: 13px 18px;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-blue);
+            font-weight: 600;
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .tab-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.8;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1560px;
+            margin: 0 auto;
+            padding: 24px 28px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.18s ease-in-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* System Context Banner */
+        .context-banner {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+        }
+
+        .context-banner-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pipeline-stepper-mini {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .pipe-step {
+            background: var(--bg-elevated);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .pipe-arrow {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        /* KPI Stat Cards Grid */
+        .kpi-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            grid-template-columns: repeat(5, 1fr);
             gap: 16px;
             margin-bottom: 24px;
         }
-        .kpi-card {
-            background: #172339;
-            border: 1px solid #233554;
-            border-radius: 12px;
-            padding: 18px 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-        }
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-        }
-        .kpi-blue::before { background: #38bdf8; }
-        .kpi-green::before { background: #4ade80; }
-        .kpi-orange::before { background: #fb923c; }
-        .kpi-purple::before { background: #a78bfa; }
-        .kpi-red::before { background: #f87171; }
 
-        .kpi-label {
-            font-size: 11.5px;
-            font-weight: 600;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+        @media (max-width: 1200px) {
+            .kpi-row { grid-template-columns: repeat(3, 1fr); }
         }
-        .kpi-value {
-            font-size: 26px;
-            font-weight: 700;
-            color: #f8fafc;
-            font-family: 'Consolas', monospace;
-            line-height: 1.2;
+        @media (max-width: 768px) {
+            .kpi-row { grid-template-columns: 1fr; }
         }
-        .kpi-sub {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 6px;
+
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.15s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #3b4d68;
+        }
+
+        .stat-header {
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: space-between;
+            margin-bottom: 8px;
         }
 
-        /* Cards */
+        .stat-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .stat-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+        }
+
+        .stat-icon svg { width: 14px; height: 14px; }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-footer {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-footer strong {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Card Layouts */
         .card {
-            background: #172339;
-            border: 1px solid #233554;
-            border-radius: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             margin-bottom: 24px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
+
         .card-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #233554;
-            background: rgba(15, 23, 42, 0.4);
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.015);
         }
-        .card-header h3 {
-            font-size: 15px;
+
+        .card-header-title {
+            font-size: 14px;
             font-weight: 600;
-            color: #f1f5f9;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .card-header-title svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
+        }
+
+        .card-header-action {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .card-body { padding: 20px; }
-        .card-badge {
-            font-size: 11px;
-            padding: 3px 10px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-family: 'Consolas', monospace;
-        }
-        .badge-blue { background: #1e3a5f; color: #7dd3fc; }
-        .badge-green { background: #14532d; color: #86efac; }
-        .badge-red { background: #7f1d1d; color: #fca5a5; }
-        .badge-yellow { background: #713f12; color: #fde68a; }
 
-        /* Grid layout */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .card-body {
+            padding: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         @media (max-width: 1024px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
         }
 
-        /* Charts specific */
-        .chart-box {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        .chart-box-tall {
-            position: relative;
-            height: 360px;
-            width: 100%;
-        }
-        .chart-legend-custom {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 14px;
-            justify-content: center;
-            font-size: 12px;
-            color: #94a3b8;
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
 
-        /* Tables */
-        table {
+        /* Chart container */
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+
+        /* Clean Enterprise Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table.enterprise-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
-        }
-        th {
+            font-size: 12.5px;
             text-align: left;
-            padding: 10px 14px;
-            background: #0f172a;
-            color: #94a3b8;
+        }
+
+        table.enterprise-table th {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
             font-weight: 600;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 1px solid #233554;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
-        td {
-            padding: 11px 14px;
-            border-top: 1px solid #1e293b;
-            color: #cbd5e1;
-        }
-        tr:hover td { background: #1c2b46; }
-        .num { font-family: 'Consolas', monospace; text-align: right; }
-        .mono { font-family: 'Consolas', monospace; }
-        .dept-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 700;
-            font-family: 'Consolas', monospace;
-        }
-        .dept-HR { background: #312e81; color: #a5b4fc; }
-        .dept-FIN { background: #064e3b; color: #6ee7b7; }
-        .dept-ENG { background: #78350f; color: #fcd34d; }
-        .dept-MKT { background: #7f1d1d; color: #fca5a5; }
 
-        /* Run Panel */
-        .run-section {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+        table.enterprise-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: #d1d5db;
         }
-        @media (max-width: 768px) {
-            .run-section { flex-direction: column; }
+
+        table.enterprise-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
         }
-        .run-card {
-            flex: 1;
-            background: #172339;
-            border: 1px solid #233554;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
+
+        table.enterprise-table .num {
+            text-align: right;
+            font-family: var(--font-mono);
         }
-        .run-btn {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: white;
-            border: none;
-            padding: 14px 40px;
-            font-size: 15px;
-            font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
+
+        table.enterprise-table .mono {
+            font-family: var(--font-mono);
+        }
+
+        /* Department Badge */
+        .dept-tag {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10.5px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .dept-HR { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .dept-FIN { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .dept-ENG { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .dept-MKT { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        /* Status / Result Badges */
+        .badge {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            white-space: nowrap;
         }
-        .run-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4); }
-        .run-btn:active { transform: translateY(0); }
-        .run-btn:disabled {
-            background: #334155;
+
+        .badge-success { background: var(--accent-green-subtle); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.25); }
+        .badge-danger { background: var(--accent-rose-subtle); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.25); }
+        .badge-warning { background: var(--accent-amber-subtle); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.25); }
+        .badge-neutral { background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .badge-info { background: var(--accent-blue-subtle); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.25); }
+
+        /* JCL 6-Step Execution Flow Cards */
+        .jcl-pipeline-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .jcl-pipeline-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .jcl-pipeline-grid { grid-template-columns: 1fr; }
+        }
+
+        .jcl-step-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .jcl-step-num {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 2px;
+        }
+
+        .jcl-step-pgm {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .jcl-step-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+
+        .jcl-step-rc {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #ffffff;
+        }
+        .btn-primary:hover { background: var(--accent-blue-hover); }
+
+        .btn-success {
+            background: #059669;
+            color: #ffffff;
+        }
+        .btn-success:hover { background: #047857; }
+
+        .btn-outline {
+            background: var(--bg-elevated);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+        .btn-outline:hover {
+            color: var(--text-primary);
+            border-color: #4b5563;
+            background: #243044;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #ffffff;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
-        .run-btn.running {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        .status-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 8px;
+        .btn-lg {
+            padding: 12px 26px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: var(--radius-md);
         }
-        .status-ok { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
-        .status-err { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-        .status-wait { background: #eab308; box-shadow: 0 0 8px rgba(234, 179, 8, 0.6); }
-        .status-none { background: #475569; }
 
-        /* Terminal */
-        .terminal {
-            background: #030712;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'Consolas', 'Courier New', monospace;
+        /* Spool & Terminal Output */
+        .terminal-panel {
+            background: #080c14;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            font-family: var(--font-mono);
             font-size: 12px;
             line-height: 1.6;
-            color: #a3e635;
-            max-height: 420px;
+            color: #cbd5e1;
+            height: 380px;
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-all;
         }
 
-        /* Report view */
-        .report-pre {
-            background: #030712;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 20px;
-            font-family: 'Consolas', 'Courier New', monospace;
+        /* Fixed-Width Editor */
+        .editor-textarea {
+            width: 100%;
+            height: 220px;
+            background: #080c14;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-family: var(--font-mono);
             font-size: 12.5px;
+            color: #e2e8f0;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .editor-textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        /* Search input */
+        .search-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            width: 220px;
+        }
+        .search-input:focus { outline: none; border-color: var(--accent-blue); }
+
+        /* Report Preview Pre */
+        .report-frame {
+            background: #080c14;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 18px 22px;
+            font-family: var(--font-mono);
+            font-size: 12px;
             line-height: 1.5;
             color: #e2e8f0;
             overflow-x: auto;
             white-space: pre;
+            max-height: 480px;
         }
 
-        /* Textarea */
-        .edit-area {
-            width: 100%;
-            min-height: 200px;
-            background: #030712;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'Consolas', monospace;
-            font-size: 13px;
-            color: #a3e635;
-            resize: vertical;
-            line-height: 1.6;
-        }
-        .edit-area:focus { outline: none; border-color: #38bdf8; }
-
-        .save-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-        .save-btn:hover { background: #1d4ed8; }
-
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-
-        /* RACF & Security Styles */
-        .user-session-badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #172339;
-            border: 1px solid #38bdf8;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .user-session-badge:hover {
-            background: #1e3a5f;
-            box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
-            transform: translateY(-1px);
-        }
-        .user-icon { font-size: 15px; }
-        .user-text { font-size: 12px; color: #f1f5f9; font-family: 'Consolas', monospace; }
-        .switch-pill {
-            font-size: 10px;
-            background: #2563eb;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        /* Modal */
-        .modal-overlay {
+        /* Modal Styles */
+        .modal-backdrop {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(3px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
-        .modal-overlay.active { display: flex; }
-        .modal-card {
-            background: #172339;
-            border: 1px solid #334155;
-            border-radius: 14px;
+        .modal-backdrop.active { display: flex; }
+
+        .modal-dialog {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
             width: 90%;
-            max-width: 600px;
+            max-width: 620px;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
         }
+
         .modal-header {
-            padding: 16px 20px;
-            background: #0f172a;
-            border-bottom: 1px solid #233554;
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
         }
-        .modal-header h3 { font-size: 15px; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
-        .modal-close {
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
             background: none;
             border: none;
-            color: #94a3b8;
+            color: var(--text-muted);
             font-size: 20px;
             cursor: pointer;
+            line-height: 1;
         }
-        .modal-close:hover { color: #f8fafc; }
-        .modal-body { padding: 20px; }
-        .user-select-grid {
+        .modal-close-btn:hover { color: var(--text-primary); }
+
+        .modal-body { padding: 20px 22px; }
+
+        .persona-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-top: 14px;
         }
-        .user-option-card {
-            background: #0f172a;
-            border: 1px solid #233554;
-            border-radius: 10px;
+
+        .persona-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
             padding: 14px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
             text-align: left;
         }
-        .user-option-card:hover {
-            border-color: #38bdf8;
-            background: #14223d;
-            transform: translateY(-2px);
+
+        .persona-card:hover {
+            border-color: var(--accent-blue);
+            background: #223249;
+            transform: translateY(-1px);
         }
-        .user-option-card.current {
-            border-color: #22c55e;
-            background: #0d2818;
+
+        .persona-card.current {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.08);
         }
-        .user-opt-name { font-weight: 700; font-size: 14px; color: #f8fafc; font-family: 'Consolas', monospace; }
-        .user-opt-role { font-size: 11.5px; color: #94a3b8; margin: 4px 0 8px 0; }
-        .user-opt-badge {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Consolas', monospace;
+
+        .persona-name {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 13.5px;
+            color: var(--text-primary);
+        }
+
+        .persona-role {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin: 3px 0 8px 0;
+        }
+
+        /* Sub-tab pills */
+        .subtabs-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .subtab-pill {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .subtab-pill:hover { color: var(--text-primary); }
+        .subtab-pill.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #ffffff;
             font-weight: 600;
         }
 
-        /* Security Table Elements */
-        .sec-acl-tag {
-            font-size: 10.5px;
-            font-family: 'Consolas', monospace;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-weight: 700;
-            display: inline-block;
-        }
-        .acl-ALTER { background: #78350f; color: #fde68a; }
-        .acl-EXECUTE { background: #064e3b; color: #6ee7b7; }
-        .acl-UPDATE { background: #1e3a5f; color: #7dd3fc; }
-        .acl-READ { background: #1f2937; color: #cbd5e1; }
-        .acl-NONE { background: #7f1d1d; color: #fca5a5; }
-
-        .smf-badge {
-            font-size: 10.5px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'Consolas', monospace;
-        }
-        .smf-PERMITTED { background: #14532d; color: #86efac; }
-        .smf-VIOLATION { background: #7f1d1d; color: #fca5a5; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
     </style>
-    <!-- Chart.js (Local offline bundle with CDN fallback) -->
+    <!-- Chart.js local bundle with CDN fallback -->
     <script src="/static/js/chart.min.js"></script>
     <script>
         if (typeof Chart === 'undefined') {
@@ -512,548 +794,821 @@
 </head>
 <body>
 
-<div class="header">
-    <div class="header-left">
-        <h1>⚙️ Enterprise Payroll System</h1>
-        <span class="subtitle">PAYPROC01 — GnuCOBOL Batch Engine</span>
-    </div>
-    <div class="header-badges">
-        <div class="user-session-badge" onclick="openUserModal()" title="Click to Switch RACF Security Identity">
-            <span class="user-icon">👤</span>
-            <span class="user-text">RACF: <strong id="header-user-id" style="color:#38bdf8;">IBMUSER</strong> (<span id="header-user-role">SYSADMIN</span>)</span>
-            <span class="switch-pill">Switch ▾</span>
-        </div>
-        <span class="tech-badge">GnuCOBOL 3.1</span>
-        <span class="mainframe-badge">IBM z/OS RACF & SAF</span>
-    </div>
-</div>
-
-<div class="tabs">
-    <div class="tab active" onclick="switchTab('dashboard')"><span>📊</span> Overview</div>
-    <div class="tab" onclick="switchTab('analytics')"><span>📈</span> Analytics & Charts</div>
-    <div class="tab" onclick="switchTab('security')"><span>🔒</span> RACF & Security</div>
-    <div class="tab" onclick="switchTab('data')"><span>⏱️</span> Timecards & Input</div>
-    <div class="tab" onclick="switchTab('refdata')"><span>👥</span> Reference Data (DB2/VSAM)</div>
-    <div class="tab" onclick="switchTab('run')"><span>▶</span> Run Batch (JCL)</div>
-    <div class="tab" onclick="switchTab('payslip')"><span>📄</span> Payslip Report</div>
-    <div class="tab" onclick="switchTab('dept')"><span>📋</span> Dept Summary</div>
-    <div class="tab" onclick="switchTab('exceptions')"><span>⚠️</span> Exception Log</div>
-</div>
-
-<div class="content">
-
-    <!-- KPI CARDS SUMMARY (Top of Dashboard) -->
-    <div class="kpi-grid">
-        <div class="kpi-card kpi-blue">
-            <div class="kpi-label">Total Gross Payroll</div>
-            <div class="kpi-value" id="kpi-gross">$0.00</div>
-            <div class="kpi-sub"><span>Regular + Overtime</span></div>
-        </div>
-        <div class="kpi-card kpi-green">
-            <div class="kpi-label">Total Net Disbursed</div>
-            <div class="kpi-value" id="kpi-net">$0.00</div>
-            <div class="kpi-sub"><span id="kpi-net-pct">0%</span> of Gross Salary</div>
-        </div>
-        <div class="kpi-card kpi-red">
-            <div class="kpi-label">Taxes & Deductions</div>
-            <div class="kpi-value" id="kpi-ded">$0.00</div>
-            <div class="kpi-sub"><span>Fed + State + Insurance</span></div>
-        </div>
-        <div class="kpi-card kpi-orange">
-            <div class="kpi-label">Overtime Premium</div>
-            <div class="kpi-value" id="kpi-ot">$0.00</div>
-            <div class="kpi-sub"><span>1.5x Hourly Rate Tier</span></div>
-        </div>
-        <div class="kpi-card kpi-purple">
-            <div class="kpi-label">Batch Process Health</div>
-            <div class="kpi-value" id="kpi-health">0/0</div>
-            <div class="kpi-sub"><span id="kpi-err-sub">0 exceptions caught</span></div>
+<!-- Top Enterprise Navbar -->
+<header class="navbar">
+    <div class="navbar-brand">
+        <div class="brand-logo">z/OS</div>
+        <div>
+            <div class="brand-title">Enterprise Payroll Processing System</div>
+            <div class="brand-subtitle">PAYPROC01 · COBOL Batch Engine & RACF Security Governance</div>
         </div>
     </div>
+    <div class="navbar-actions">
+        <!-- System Health Pill -->
+        <div class="sys-status-pill">
+            <span class="status-dot" id="nav-status-dot"></span>
+            <span id="nav-status-text">Batch Engine Ready</span>
+        </div>
 
-    <!-- TAB 1: EXECUTIVE OVERVIEW -->
-    <div id="panel-dashboard" class="tab-panel active">
-        <!-- 2 Highlight Charts on Overview -->
+        <!-- RACF User Switcher Pill -->
+        <div class="user-pill" onclick="openUserModal()" title="Switch RACF Security Persona">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>RACF: <span class="user-pill-role" id="nav-user-id">IBMUSER</span></span>
+            <span class="user-pill-badge" id="nav-user-auth">ALTER</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+    </div>
+</header>
+
+<!-- Streamlined 5-Section Nav Tabs -->
+<nav class="nav-tabs">
+    <button class="tab-btn active" onclick="switchNavTab('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+        Dashboard & Analytics
+    </button>
+    <button class="tab-btn" onclick="switchNavTab('batch')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Run Batch Job (JCL)
+    </button>
+    <button class="tab-btn" onclick="switchNavTab('datasets')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        Datasets & Reference Data
+    </button>
+    <button class="tab-btn" onclick="switchNavTab('reports')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Payroll Reports & Audit
+    </button>
+    <button class="tab-btn" onclick="switchNavTab('security')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        Security & Access Control (RACF)
+    </button>
+</nav>
+
+<main class="main-container">
+
+    <!-- Top KPI Row (Always Visible for Instant Financial Clarity) -->
+    <div class="kpi-row">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Total Gross Payroll</span>
+                <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+            </div>
+            <div class="stat-value" id="kpi-gross">$0.00</div>
+            <div class="stat-footer">Regular + Overtime Pay</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Net Salary Disbursed</span>
+                <div class="stat-icon" style="color:var(--accent-green);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            </div>
+            <div class="stat-value" style="color:var(--accent-green);" id="kpi-net">$0.00</div>
+            <div class="stat-footer"><strong id="kpi-net-pct">0%</strong> of gross compensation</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Taxes & Deductions</span>
+                <div class="stat-icon" style="color:var(--accent-rose);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></div>
+            </div>
+            <div class="stat-value" style="color:var(--accent-rose);" id="kpi-ded">$0.00</div>
+            <div class="stat-footer">State + Federal + Insurance</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Overtime Premium</span>
+                <div class="stat-icon" style="color:var(--accent-amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+            </div>
+            <div class="stat-value" style="color:var(--accent-amber);" id="kpi-ot">$0.00</div>
+            <div class="stat-footer">1.5× rate above 40.0 hours</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Batch Ingestion Health</span>
+                <div class="stat-icon" style="color:var(--accent-blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div>
+            </div>
+            <div class="stat-value" id="kpi-health">0 / 0</div>
+            <div class="stat-footer"><span id="kpi-err-sub">0 exceptions caught</span></div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- SECTION 1: DASHBOARD & ANALYTICS                               -->
+    <!-- ============================================================== -->
+    <div id="pane-dashboard" class="tab-pane active">
+        <!-- Context Explanation Banner -->
+        <div class="context-banner">
+            <div class="context-banner-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span><strong>Batch Execution Architecture:</strong> Raw timecards (9B) are sorted via DFSORT, validated across 4 defensive quality gates in COBOL, and reconciled into balanced SYSOUT ledgers.</span>
+            </div>
+            <div class="pipeline-stepper-mini">
+                <span class="pipe-step">STEP00 RACF</span><span class="pipe-arrow">→</span>
+                <span class="pipe-step">STEP02 SORT</span><span class="pipe-arrow">→</span>
+                <span class="pipe-step">STEP04 COBOL</span><span class="pipe-arrow">→</span>
+                <span class="pipe-step">STEP05 AUDIT</span>
+            </div>
+        </div>
+
+        <!-- Row 1: Dept Breakdown Bar & Payroll Allocation Donut -->
         <div class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3>🏢 Department Payroll Breakdown</h3>
-                    <span class="card-badge badge-blue">Audit Comparison</span>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        Department Payroll Distribution
+                    </div>
+                    <span class="badge badge-info">Gross vs Deductions vs Net</span>
                 </div>
                 <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="overviewDeptChart"></canvas>
-                    </div>
+                    <div class="chart-wrapper"><canvas id="overviewDeptChart"></canvas></div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h3>💰 Enterprise Payroll Allocation</h3>
-                    <span class="card-badge badge-green">Gross Disbursal</span>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 1 10 10"></path></svg>
+                        Gross Salary Allocation Ratio
+                    </div>
+                    <span class="badge badge-success">Net Pay vs Statutory Taxes</span>
                 </div>
                 <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="overviewDistChart"></canvas>
-                    </div>
+                    <div class="chart-wrapper"><canvas id="overviewDistChart"></canvas></div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Department Table & System Status -->
+        <!-- Row 2: Department Summary Table & Execution Status -->
         <div class="grid-2">
             <div class="card">
                 <div class="card-header">
-                    <h3>📊 Department Payroll Audit Summary</h3>
-                    <span class="card-badge badge-blue">DEPT_PAYROLL_SUMMARY</span>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                        Departmental Audit Summary Table
+                    </div>
+                    <span class="badge badge-neutral">DEPT_PAYROLL_SUMMARY.txt</span>
                 </div>
                 <div class="card-body" style="padding:0;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Dept</th>
-                                <th>Headcount</th>
-                                <th class="num">Total Gross</th>
-                                <th class="num">Total Deductions</th>
-                                <th class="num">Net Disbursed</th>
-                            </tr>
-                        </thead>
-                        <tbody id="overview-dept-table">
-                            <tr><td colspan="5" class="no-data">Loading department metrics...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="enterprise-table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Headcount</th>
+                                    <th class="num">Total Gross</th>
+                                    <th class="num">Deductions</th>
+                                    <th class="num">Net Disbursed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overview-dept-table">
+                                <tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted);">Loading department summary...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h3>🖥️ Mainframe Batch Execution Status</h3>
-                    <span class="card-badge badge-green" id="batch-status-badge">READY</span>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Batch Execution Status & Verification
+                    </div>
+                    <span class="badge badge-success" id="batch-status-badge">READY</span>
                 </div>
                 <div class="card-body">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                         <div>
-                            <div style="font-size:12px; color:#94a3b8;">LAST RUN COMPLETION</div>
-                            <div style="font-size:16px; font-weight:700; color:#f8fafc;" id="last-run-timestamp">—</div>
+                            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Last Successful Run</div>
+                            <div style="font-size:15px; font-weight:600; color:var(--text-primary);" id="last-run-timestamp">—</div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-size:12px; color:#94a3b8;">SYSTEM RETURN CODE</div>
-                            <div style="font-size:20px; font-weight:700; color:#4ade80; font-family:'Consolas',monospace;" id="overview-rc">RC=0000</div>
+                            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">System Return Code</div>
+                            <div style="font-size:18px; font-weight:700; font-family:var(--font-mono); color:var(--accent-green);" id="overview-rc">RC=0000</div>
                         </div>
                     </div>
 
-                    <div style="background:#0f172a; border:1px solid #233554; border-radius:8px; padding:14px; font-size:12.5px; line-height:1.7;">
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
-                            <span style="color:#94a3b8;">STEP00 (RACFCHK Dataset Integrity & SAF Auth)</span>
-                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
+                    <div style="background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border-color);">
+                            <span style="color:var(--text-secondary);">STEP00: RACF Dataset Integrity & Access Authority</span>
+                            <span class="mono" style="color:var(--accent-green); font-weight:600;">RC=0000 OK</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
-                            <span style="color:#94a3b8;">STEP01 (IEFBR14 Compiler Check)</span>
-                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
+                        <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border-color);">
+                            <span style="color:var(--text-secondary);">STEP02: DFSORT Key Sequence (Cols 1-5 Ascending)</span>
+                            <span class="mono" style="color:var(--accent-green); font-weight:600;">RC=0000 OK</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
-                            <span style="color:#94a3b8;">STEP02 (DFSORT Key Sort 1-5 Ascending)</span>
-                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
+                        <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border-color);">
+                            <span style="color:var(--text-secondary);">STEP04: PAYPROC01 COBOL Calculation Engine</span>
+                            <span class="mono" style="color:var(--accent-green); font-weight:600;">RC=0000 OK</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
-                            <span style="color:#94a3b8;">STEP03 (IKFCBL00 COBOL Compilation)</span>
-                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #1e293b; padding-bottom:6px; margin-bottom:6px;">
-                            <span style="color:#94a3b8;">STEP04 (PAYPROC01 Batch Calculations)</span>
-                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <span style="color:#94a3b8;">STEP05 (IEBGENER Report Verification)</span>
-                            <span style="color:#4ade80; font-family:'Consolas',monospace;">RC=0000 OK</span>
+                        <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                            <span style="color:var(--text-secondary);">STEP05: Output Dataset Audit & Record Validation</span>
+                            <span class="mono" style="color:var(--accent-green); font-weight:600;">RC=0000 OK</span>
                         </div>
                     </div>
 
-                    <div style="margin-top:16px; text-align:center;">
-                        <button class="run-btn" style="padding:10px 24px; font-size:13.5px;" onclick="switchTab('run')">
-                            <span>🚀</span> Go to JCL Batch Runner
-                        </button>
+                    <button class="btn btn-primary" style="width:100%;" onclick="switchNavTab('batch')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Open Batch Job Runner (JCL Console)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Deep-Dive Analytics Charts (Overtime, Hours Variance, Leaderboard, Quality Gate) -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+                        Base Wages vs Overtime Premium Tier (by Department)
+                    </div>
+                    <span class="badge badge-warning">Stacked 1.5× Tiers</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-wrapper"><canvas id="deptOtChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        Employee Compensation Leaderboard (Gross vs Net)
+                    </div>
+                    <span class="badge badge-info">Ranked Take-Home Pay</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-wrapper"><canvas id="empCompChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Hours Worked vs 40.0h Standard Weekly Threshold
+                    </div>
+                    <span class="badge badge-warning">Overtime Variance Analysis</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-wrapper"><canvas id="hoursChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Defensive Quality Gates: Ingestion & Quarantine Status
+                    </div>
+                    <span class="badge badge-danger">100% Exception Isolation</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-wrapper"><canvas id="validationChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- SECTION 2: BATCH JOB EXECUTION (JCL)                           -->
+    <!-- ============================================================== -->
+    <div id="pane-batch" class="tab-pane">
+        <div class="context-banner">
+            <div class="context-banner-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                <span><strong>JCL Job Execution Control:</strong> In IBM z/OS mainframes, batch jobs are executed sequentially via Job Control Language. Each job step passes condition codes (RC=0000) to ensure fault tolerance.</span>
+            </div>
+            <div>
+                <span class="mono" style="font-size:12px; color:var(--text-secondary);">JOB: <strong>PAYPROC01</strong> · CLASS=A · MSGCLASS=X</span>
+            </div>
+        </div>
+
+        <!-- 6-Step Visual Pipeline Cards -->
+        <div class="jcl-pipeline-grid">
+            <div class="jcl-step-card">
+                <div>
+                    <div class="jcl-step-num">STEP00</div>
+                    <div class="jcl-step-pgm">RACFCHK</div>
+                    <div class="jcl-step-desc">SAF Authorization & SHA-256 Dataset Integrity</div>
+                </div>
+                <div class="jcl-step-rc" id="step00-rc">RC=0000 OK</div>
+            </div>
+            <div class="jcl-step-card">
+                <div>
+                    <div class="jcl-step-num">STEP01</div>
+                    <div class="jcl-step-pgm">IEFBR14</div>
+                    <div class="jcl-step-desc">GnuCOBOL Compiler Environment Check</div>
+                </div>
+                <div class="jcl-step-rc" id="step01-rc">RC=0000 OK</div>
+            </div>
+            <div class="jcl-step-card">
+                <div>
+                    <div class="jcl-step-num">STEP02</div>
+                    <div class="jcl-step-pgm">DFSORT</div>
+                    <div class="jcl-step-desc">Ascending Key Sort on Employee ID (Cols 1-5)</div>
+                </div>
+                <div class="jcl-step-rc" id="step02-rc">RC=0000 OK</div>
+            </div>
+            <div class="jcl-step-card">
+                <div>
+                    <div class="jcl-step-num">STEP03</div>
+                    <div class="jcl-step-pgm">IKFCBL00</div>
+                    <div class="jcl-step-desc">COBOL Native Binary Compilation</div>
+                </div>
+                <div class="jcl-step-rc" id="step03-rc">RC=0000 OK</div>
+            </div>
+            <div class="jcl-step-card">
+                <div>
+                    <div class="jcl-step-num">STEP04</div>
+                    <div class="jcl-step-pgm">PAYPROC01</div>
+                    <div class="jcl-step-desc">Core Decimal Math & 4-Gate Quality Filters</div>
+                </div>
+                <div class="jcl-step-rc" id="step04-rc">RC=0000 OK</div>
+            </div>
+            <div class="jcl-step-card">
+                <div>
+                    <div class="jcl-step-num">STEP05</div>
+                    <div class="jcl-step-pgm">IEBGENER</div>
+                    <div class="jcl-step-desc">Verify Generated Output Datasets & Non-Zero Byte Counts</div>
+                </div>
+                <div class="jcl-step-rc" id="step05-rc">RC=0000 OK</div>
+            </div>
+        </div>
+
+        <!-- Submission Trigger & Permissions Alert -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Job Submitter Control & Dispatcher
+                </div>
+                <div class="card-header-action">
+                    <span class="mono" style="font-size:12px; color:var(--text-secondary);">Active Submitter: <strong id="run-user-badge" style="color:var(--accent-blue);">IBMUSER</strong></span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="run-auth-warning" style="display:none; background:var(--accent-rose-subtle); border:1px solid rgba(244, 63, 94, 0.3); color:#fca5a5; padding:12px 16px; border-radius:var(--radius-sm); font-size:12.5px; margin-bottom:16px;">
+                    <strong>SAF Security Warning:</strong> Active user does not possess <code>EXECUTE</code> authority on <code>JOB.PAYPROC01.SUBMIT</code>. Submitting this job will trigger an intentional <strong>Security ABEND (RC=0016)</strong> logged to the SMF Type 80 audit log.
+                </div>
+
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <button id="run-btn" class="btn btn-success btn-lg" onclick="runBatch()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Submit Batch Job PAYPROC01
+                    </button>
+                    <div style="font-size:12px; color:var(--text-secondary);" id="run-info">
+                        Ready to dispatch job to WSL GnuCOBOL environment. Condition code threshold: <strong>MAX RC=0004</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JES2 SYSOUT Terminal Console -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-header-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                    JES2 Job Spool & Execution Console (SYSOUT Class A)
+                </div>
+                <div class="card-header-action">
+                    <button class="btn btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="copyConsoleOutput()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copy Console Output
+                    </button>
+                    <button class="btn btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="clearConsoleOutput()">Clear</button>
+                </div>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <div class="terminal-panel" id="console-output">Awaiting batch job submission... Click "Submit Batch Job PAYPROC01" above to run the 6-step pipeline.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- SECTION 3: DATASETS & REFERENCE DATA                           -->
+    <!-- ============================================================== -->
+    <div id="pane-datasets" class="tab-pane">
+        <div class="context-banner">
+            <div class="context-banner-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                <span><strong>Fixed-Width Mainframe Datasets:</strong> Mainframe QSAM flat files strictly adhere to fixed byte columns rather than comma/quote delimiters, preventing injection attacks and buffer overruns.</span>
+            </div>
+        </div>
+
+        <!-- Subtabs for Datasets -->
+        <div class="subtabs-bar">
+            <button class="subtab-pill active" onclick="switchDatasetSubtab('timecards')">Raw Timecard Stream (raw_timecards.dat · 9B)</button>
+            <button class="subtab-pill" onclick="switchDatasetSubtab('empmaster')">DB2 Employee Master (employee_master.dat · 39B)</button>
+            <button class="subtab-pill" onclick="switchDatasetSubtab('taxrates')">VSAM KSDS Tax Index (tax_rates_index.dat · 7B)</button>
+        </div>
+
+        <!-- Subtab 1: Timecards Table & Editor -->
+        <div id="subpane-timecards">
+            <div class="grid-2">
+                <!-- Parsed Visual Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Parsed Operational Ingestion Stream
+                        </div>
+                        <span class="badge badge-info" id="tc-count-badge">13 Records</span>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="table-responsive" style="max-height:440px;">
+                            <table class="enterprise-table">
+                                <thead>
+                                    <tr>
+                                        <th>EMP-ID</th>
+                                        <th class="num">Hours</th>
+                                        <th>Tax Bracket</th>
+                                        <th>Validation Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tc-table">
+                                    <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Loading timecards...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raw Fixed-Width Editor -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Raw Fixed-Width Editor (data/input/raw_timecards.dat)
+                        </div>
+                        <span class="badge badge-success" id="tc-auth-badge">UPDATE PERMITTED</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="tc-auth-alert"></div>
+                        <div style="background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 14px; font-size:11.5px; color:var(--text-secondary); margin-bottom:12px; font-family:var(--font-mono); line-height:1.5;">
+                            <strong>Record Layout:</strong> <code>XXXXXHHHB</code><br>
+                            • Cols 1–5: Employee ID (e.g. <code>10001</code>)<br>
+                            • Cols 6–8: Hours × 10 (e.g. <code>400</code> = 40.0h, <code>455</code> = 45.5h)<br>
+                            • Col 9: Tax Bracket Code (<code>A</code> through <code>E</code>)
+                        </div>
+                        <textarea id="tc-edit" class="editor-textarea" spellcheck="false"></textarea>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+                            <button class="btn btn-primary" id="tc-save-btn" onclick="saveTimecards()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                Save Timecards Dataset
+                            </button>
+                            <span id="save-status" style="font-size:12px;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtab 2: DB2 Employee Master -->
+        <div id="subpane-empmaster" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        DB2 Master Employee Table (39-Byte Fixed Layout)
+                    </div>
+                    <span class="badge badge-info" id="emp-count-badge">10 Employees</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="enterprise-table">
+                            <thead>
+                                <tr>
+                                    <th>EMP-ID (Cols 1-5)</th>
+                                    <th>Employee Name (Cols 6-25)</th>
+                                    <th>Dept (26-29)</th>
+                                    <th class="num">Hourly Rate (30-34)</th>
+                                    <th class="num">Insurance Ded (35-39)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emp-table">
+                                <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Loading employee catalog...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtab 3: VSAM Tax Rates Index -->
+        <div id="subpane-taxrates" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                        VSAM Key-Sequenced Dataset (KSDS) Tax Rates Index (7-Byte Layout)
+                    </div>
+                    <span class="badge badge-info" id="tax-count-badge">5 Brackets</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="enterprise-table">
+                            <thead>
+                                <tr>
+                                    <th>Bracket Key (Col 1)</th>
+                                    <th class="num">State Tax Rate (Cols 2-4)</th>
+                                    <th class="num">Federal Tax Rate (Cols 5-7)</th>
+                                    <th class="num">Effective Combined Tax</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tax-table">
+                                <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Loading tax index...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: ANALYTICS & DEEP DIVE CHARTS -->
-    <div id="panel-analytics" class="tab-panel">
-        <div class="grid-2">
-            <!-- Chart 1: Regular vs Overtime by Dept -->
+    <!-- ============================================================== -->
+    <!-- SECTION 4: PAYROLL REPORTS & AUDIT                             -->
+    <!-- ============================================================== -->
+    <div id="pane-reports" class="tab-pane">
+        <div class="context-banner">
+            <div class="context-banner-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <span><strong>Official SYSOUT Output Spools:</strong> Generated by <code>PAYPROC01</code> and verified in <code>STEP05</code>. Emulates Class A batch print files for corporate ledger balancing.</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-outline" style="font-size:11.5px; padding:4px 10px;" id="report-view-toggle" onclick="toggleReportViewMode()">
+                    Switch to Formatted Table View
+                </button>
+                <button class="btn btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="copyActiveReport()">
+                    Copy Report Content
+                </button>
+            </div>
+        </div>
+
+        <div class="subtabs-bar">
+            <button class="subtab-pill active" onclick="switchReportSubtab('payslip')">Monthly Payslip Report (SYSOUT Class A)</button>
+            <button class="subtab-pill" onclick="switchReportSubtab('dept')">Departmental Audit Summary Report</button>
+            <button class="subtab-pill" onclick="switchReportSubtab('exceptions')">Quarantined Payroll Exception Log</button>
+        </div>
+
+        <!-- Payslip Report View -->
+        <div id="subpane-rep-payslip">
             <div class="card">
                 <div class="card-header">
-                    <h3>⚡ Regular Pay vs. Overtime Premium by Department</h3>
-                    <span class="card-badge badge-yellow">Stacked Pay Tiers</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="deptOtChart"></canvas>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                        MONTHLY_PAYSLIP_REPORT.txt (Class A Print Spool)
+                    </div>
+                    <div class="card-header-action">
+                        <input type="text" class="search-input" id="payslip-search" placeholder="Search employee or dept..." onkeyup="filterPayslipTable()">
                     </div>
                 </div>
-            </div>
-
-            <!-- Chart 2: Employee Gross vs Net Pay Leaderboard -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>🏅 Employee Compensation Leaderboard (Gross vs Net)</h3>
-                    <span class="card-badge badge-blue">Ranked Earner View</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="empCompChart"></canvas>
+                <div class="card-body" style="padding:0;">
+                    <!-- Raw Monospaced Spool View -->
+                    <div id="rep-payslip-raw" class="report-frame">Loading payslip report...</div>
+                    <!-- Formatted Interactive Table View -->
+                    <div id="rep-payslip-table" style="display:none;" class="table-responsive">
+                        <table class="enterprise-table" id="payslip-interactive-table">
+                            <thead>
+                                <tr>
+                                    <th>EMP-ID</th>
+                                    <th>Employee Name</th>
+                                    <th>Dept</th>
+                                    <th class="num">Hours</th>
+                                    <th class="num">Regular Pay</th>
+                                    <th class="num">Overtime</th>
+                                    <th class="num">Gross Pay</th>
+                                    <th class="num">Deductions</th>
+                                    <th class="num">Net Take-Home</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payslip-tbody"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid-2">
-            <!-- Chart 3: Employee Hours vs 40h Standard Baseline -->
+        <!-- Dept Summary Report View -->
+        <div id="subpane-rep-dept" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h3>⏱️ Hours Logged vs. 40.0 Hr Overtime Threshold</h3>
-                    <span class="card-badge badge-orange">Hours Variance</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="hoursChart"></canvas>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                        DEPT_PAYROLL_SUMMARY.txt (Auditor Reconciliation)
                     </div>
+                    <span class="badge badge-info">Double-Entry Cross Balance</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div id="report-dept" class="report-frame">Loading department summary...</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Chart 4: Validation Gate & Error Categories -->
+        <!-- Exception Log View -->
+        <div id="subpane-rep-exceptions" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h3>🛡️ Batch Ingestion Validation & Exception Breakdown</h3>
-                    <span class="card-badge badge-red">Quality Gate</span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-box">
-                        <canvas id="validationChart"></canvas>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        PAYROLL_EXCEPTION_LOG.txt (Quarantined Records Queue)
                     </div>
+                    <span class="badge badge-danger">3 Records Isolated</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div id="report-exceptions" class="report-frame">Loading exception queue...</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TAB: RACF & SECURITY -->
-    <div id="panel-security" class="tab-panel">
+    <!-- ============================================================== -->
+    <!-- SECTION 5: SECURITY & ACCESS CONTROL (RACF)                    -->
+    <!-- ============================================================== -->
+    <div id="pane-security" class="tab-pane">
+        <div class="context-banner">
+            <div class="context-banner-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span><strong>IBM RACF & SAF Security Architecture:</strong> Enforces strict Separation of Duties (SoD), Resource Profile Access Control Lists (ACLs), SHA-256 Dataset Integrity, and immutable SMF Type 80 audit records.</span>
+            </div>
+        </div>
+
         <div class="grid-2">
-            <!-- Security Card 1: Active Identity & Authority -->
+            <!-- Active Persona Card -->
             <div class="card">
                 <div class="card-header">
-                    <h3>🛡️ Active RACF Security Session</h3>
-                    <span class="card-badge badge-blue" id="sec-user-badge">SYSADMIN</span>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Active RACF Security Session
+                    </div>
+                    <span class="badge badge-info" id="sec-user-badge">SYSADMIN</span>
                 </div>
                 <div class="card-body">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
                         <div>
-                            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">RACF USER IDENTIFIER</div>
-                            <div style="font-size:22px; font-weight:700; color:#38bdf8; font-family:'Consolas',monospace;" id="sec-user-id">IBMUSER</div>
-                            <div style="font-size:12px; color:#cbd5e1; margin-top:2px;" id="sec-user-name">Chief Security Officer / SysProg</div>
+                            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">User Identifier</div>
+                            <div style="font-size:20px; font-weight:700; color:var(--accent-blue); font-family:var(--font-mono);" id="sec-user-id">IBMUSER</div>
+                            <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;" id="sec-user-name">Chief Security Officer / SysProg</div>
                         </div>
                         <div style="text-align:right;">
-                            <div style="font-size:11px; color:#94a3b8; text-transform:uppercase;">SAF GROUP PROFILE</div>
-                            <div style="font-size:16px; font-weight:700; color:#f8fafc; font-family:'Consolas',monospace;" id="sec-group-id">SYSADMIN</div>
-                            <div style="font-size:11px; color:#6ee7b7; font-weight:600;" id="sec-default-auth">ALTER AUTHORITY</div>
+                            <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Default Access Authority</div>
+                            <div style="font-size:15px; font-weight:700; color:var(--accent-green); font-family:var(--font-mono);" id="sec-default-auth">ALTER AUTHORITY</div>
+                            <div style="font-size:11px; color:var(--text-muted);" id="sec-group-id">Group: SYSADMIN</div>
                         </div>
                     </div>
 
-                    <div style="background:#0f172a; border:1px solid #233554; border-radius:8px; padding:12px; margin-bottom:16px; font-size:12px;">
-                        <div style="color:#94a3b8; margin-bottom:6px; font-weight:600;">ACTIVE PRIVILEGES & PERMISSIONS:</div>
-                        <div id="sec-privileges-pills" style="display:flex; flex-wrap:wrap; gap:6px;">
-                            <span class="sec-acl-tag acl-ALTER">ALTER (Full Control)</span>
-                            <span class="sec-acl-tag acl-EXECUTE">EXECUTE (JCL Submit)</span>
-                            <span class="sec-acl-tag acl-UPDATE">UPDATE (Datasets)</span>
-                            <span class="sec-acl-tag acl-READ">READ (Audit Logs)</span>
-                        </div>
+                    <div style="background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">Granted Privilege Set</div>
+                        <div id="sec-privileges-pills" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
                     </div>
 
-                    <div style="display:flex; gap:10px;">
-                        <button class="save-btn" style="margin:0; flex:1;" onclick="openUserModal()">
-                            👤 Switch RACF Identity
-                        </button>
-                    </div>
+                    <button class="btn btn-outline" style="width:100%;" onclick="openUserModal()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                        Switch Mainframe Identity Persona
+                    </button>
                 </div>
             </div>
 
-            <!-- Security Card 2: Cryptographic Dataset Integrity -->
+            <!-- Cryptographic Dataset Integrity Card -->
             <div class="card">
                 <div class="card-header">
-                    <h3>🔐 Cryptographic Dataset Integrity (Pervasive Encryption)</h3>
-                    <span class="card-badge badge-green" id="sec-integrity-badge">ALL HASHES VERIFIED</span>
+                    <div class="card-header-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Cryptographic Dataset Integrity (CPACF Simulation)
+                    </div>
+                    <span class="badge badge-success" id="sec-integrity-badge">ALL SIGNATURES VALID</span>
                 </div>
                 <div class="card-body">
-                    <p style="font-size:12px; color:#94a3b8; margin-bottom:14px; line-height:1.5;">
-                        Validates SHA-256 cryptographic digests of master reference tables before batch execution. Tampering with salary rates or tax brackets causes an immediate <strong>Security ABEND (RC=0016)</strong>.
+                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; line-height:1.5;">
+                        Pre-execution SHA-256 cryptographic digests protect reference files from out-of-band manipulation. Any manual tampering with hourly wages or tax rates causes a <strong>Security ABEND (RC=0016)</strong> in <code>STEP00</code>.
                     </p>
-                    
-                    <div style="background:#0f172a; border:1px solid #233554; border-radius:8px; padding:12px; margin-bottom:16px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:8px; margin-bottom:8px;">
+
+                    <div style="background:var(--bg-elevated); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px; font-size:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--border-color); margin-bottom:8px;">
                             <div>
-                                <div style="font-size:12px; font-weight:600; color:#f8fafc;">employee_master.dat (DB2)</div>
-                                <div style="font-size:10px; font-family:'Consolas',monospace; color:#64748b;" id="sec-hash-emp">SHA-256: Loading...</div>
+                                <div style="font-weight:600; color:var(--text-primary);">employee_master.dat (DB2)</div>
+                                <div class="mono" style="font-size:10px; color:var(--text-muted);" id="sec-hash-emp">SHA-256: Verifying...</div>
                             </div>
-                            <span class="card-badge badge-green" id="sec-status-emp">MATCHED</span>
+                            <span class="badge badge-success" id="sec-status-emp">MATCHED</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <div style="font-size:12px; font-weight:600; color:#f8fafc;">tax_rates_index.dat (VSAM)</div>
-                                <div style="font-size:10px; font-family:'Consolas',monospace; color:#64748b;" id="sec-hash-tax">SHA-256: Loading...</div>
+                                <div style="font-weight:600; color:var(--text-primary);">tax_rates_index.dat (VSAM)</div>
+                                <div class="mono" style="font-size:10px; color:var(--text-muted);" id="sec-hash-tax">SHA-256: Verifying...</div>
                             </div>
-                            <span class="card-badge badge-green" id="sec-status-tax">MATCHED</span>
+                            <span class="badge badge-success" id="sec-status-tax">MATCHED</span>
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="font-size:11px; color:#64748b;">Manifest: <span id="sec-manifest-time">—</span></div>
-                        <button class="save-btn" style="margin:0; background:#065f46; font-size:12px; padding:6px 14px;" onclick="rehashDatasets()">
-                            ⚡ Re-generate Hashes (SYSADMIN)
+                        <span style="font-size:11px; color:var(--text-muted);">Manifest updated: <span id="sec-manifest-time">—</span></span>
+                        <button class="btn btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="rehashDatasets()">
+                            Re-calculate Baselines (SYSADMIN)
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RACF Access Control Matrix (ACL) -->
+        <!-- Resource Access Control Matrix (ACL) -->
         <div class="card">
             <div class="card-header">
-                <h3>📋 RACF Resource Access Control Matrix (ACL)</h3>
-                <span class="card-badge badge-blue">SAF Class Profiles</span>
+                <div class="card-header-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>
+                    RACF Resource Access Control Matrix (ACL)
+                </div>
+                <span class="badge badge-info">SAF Class Profiles</span>
             </div>
             <div class="card-body" style="padding:0;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Protected Resource Profile</th>
-                            <th>Class</th>
-                            <th>Description</th>
-                            <th>Required</th>
-                            <th>SYSADMIN</th>
-                            <th>OPERGRP</th>
-                            <th>PAYROLL</th>
-                            <th>AUDITGRP</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sec-matrix-table">
-                        <tr><td colspan="8" class="no-data">Loading RACF profiles...</td></tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="enterprise-table">
+                        <thead>
+                            <tr>
+                                <th>Protected Resource Profile</th>
+                                <th>Class</th>
+                                <th>Description</th>
+                                <th>Required Level</th>
+                                <th>SYSADMIN</th>
+                                <th>OPERGRP</th>
+                                <th>PAYROLL</th>
+                                <th>AUDITGRP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sec-matrix-table">
+                            <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">Loading ACL matrix...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- Live SMF Type 80 Security Audit Trail -->
         <div class="card">
             <div class="card-header">
-                <h3>📜 Live SMF Type 80 Security Audit Trail</h3>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <span class="card-badge badge-yellow" id="smf-log-count">0 events</span>
-                    <button class="save-btn" style="margin:0; padding:4px 10px; font-size:11.5px; background:#1e293b; border:1px solid #334155;" onclick="loadSecurityData()">
-                        🔄 Refresh
+                <div class="card-header-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    Live SMF Type 80 Security Telemetry & Audit Trail
+                </div>
+                <div class="card-header-action">
+                    <span class="badge badge-neutral" id="smf-log-count">0 events</span>
+                    <button class="btn btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="loadSecurityData()">
+                        Refresh Logs
                     </button>
                 </div>
             </div>
-            <div class="card-body" style="padding:0; max-height:420px; overflow-y:auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>User ID</th>
-                            <th>Group</th>
-                            <th>Event</th>
-                            <th>Resource Profile</th>
-                            <th>Intent</th>
-                            <th>Result</th>
-                            <th>SAF RC</th>
-                            <th>Audit Description</th>
-                        </tr>
-                    </thead>
-                    <tbody id="smf-log-table">
-                        <tr><td colspan="9" class="no-data">Loading SMF audit records...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 3: TIMECARDS & INPUT DATA -->
-    <div id="panel-data" class="tab-panel">
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3>⏱️ Ingestion Stream (raw_timecards.dat)</h3>
-                    <span class="card-badge badge-yellow" id="tc-count-badge"></span>
-                </div>
-                <div class="card-body" style="padding:0;">
-                    <table>
-                        <thead><tr><th>EMP-ID</th><th>Hours</th><th>Tax Bracket</th><th>Gate Status</th></tr></thead>
-                        <tbody id="tc-table"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3>✏️ Modify Raw Timecard Dataset</h3>
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span class="card-badge badge-green" id="tc-auth-badge">UPDATE PERMITTED</span>
-                        <span class="card-badge badge-blue">Fixed-Width 9-Byte</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="tc-auth-alert"></div>
-                    <p style="font-size:12px; color:#94a3b8; margin-bottom:12px; line-height:1.5;">
-                        Record Format: <code style="color:#a3e635; font-weight:700;">XXXXXHHHB</code><br>
-                        • Cols 1–5: Employee ID (e.g. <code>10001</code>)<br>
-                        • Cols 6–8: Hours worked × 10 (e.g. <code>400</code> = 40.0 hrs, <code>455</code> = 45.5 hrs)<br>
-                        • Col 9: Tax bracket code (<code>A</code> through <code>E</code>)
-                    </p>
-                    <textarea id="tc-edit" class="edit-area" spellcheck="false"></textarea>
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
-                        <button class="save-btn" id="tc-save-btn" onclick="saveTimecards()">💾 Save Timecards Dataset</button>
-                        <span id="save-status" style="font-size:12px;"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 4: REFERENCE DATA (DB2 & VSAM) -->
-    <div id="panel-refdata" class="tab-panel">
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3>👥 Employee Master Table (DB2 Emulation)</h3>
-                    <span class="card-badge badge-blue" id="emp-count-badge"></span>
-                </div>
-                <div class="card-body" style="padding:0;">
-                    <table>
+            <div class="card-body" style="padding:0;">
+                <div class="table-responsive" style="max-height:360px;">
+                    <table class="enterprise-table">
                         <thead>
-                            <tr><th>EMP-ID</th><th>Full Name</th><th>Dept</th><th class="num">Hourly Rate</th><th class="num">Insurance Ded</th></tr>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User ID</th>
+                                <th>Group</th>
+                                <th>Event</th>
+                                <th>Resource Profile</th>
+                                <th>Intent</th>
+                                <th>Result</th>
+                                <th>SAF RC</th>
+                                <th>Audit Description</th>
+                            </tr>
                         </thead>
-                        <tbody id="emp-table"></tbody>
+                        <tbody id="smf-log-table">
+                            <tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">Loading SMF audit records...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3>📊 Tax Rates Index (VSAM KSDS Emulation)</h3>
-                    <span class="card-badge badge-green" id="tax-count-badge"></span>
-                </div>
-                <div class="card-body" style="padding:0;">
-                    <table>
-                        <thead>
-                            <tr><th>Bracket Key</th><th class="num">State Tax Rate</th><th class="num">Federal Tax Rate</th><th class="num">Combined Rate</th></tr>
-                        </thead>
-                        <tbody id="tax-table"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- TAB 5: RUN BATCH (JCL) -->
-    <div id="panel-run" class="tab-panel">
-        <div class="run-section">
-            <div class="run-card" style="flex:2">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h3 style="color:#cbd5e1; font-size:17px;">Mainframe JCL Batch Pipeline Orchestrator</h3>
-                    <div style="font-size:12px; font-family:'Consolas',monospace; background:#0f172a; padding:4px 10px; border-radius:6px; border:1px solid #233554;">
-                        RACF Submitter: <strong id="run-user-badge" style="color:#38bdf8;">IBMUSER</strong>
-                    </div>
-                </div>
-                <div id="run-auth-warning" style="display:none; background:#7f1d1d; color:#fca5a5; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:14px; text-align:left;">
-                    ⚠️ <strong>SAF Security Notice:</strong> Active identity lacks <code>EXECUTE</code> authority on <code>JOB.PAYPROC01.SUBMIT</code>. Submitting this job will result in a <strong>Security ABEND (RC=0016)</strong> logged to SMF Type 80.
-                </div>
-                <button id="run-btn" class="run-btn" onclick="runBatch()">
-                    <span>▶</span> SUBMIT JOB PAYPROC01
-                </button>
-                <p style="margin-top:14px; font-size:12.5px; color:#94a3b8;" id="run-info">
-                    Executes: <strong>STEP00 (RACF/SAF Security)</strong> → <strong>STEP01 (Compiler)</strong> → <strong>STEP02 (DFSORT)</strong> → <strong>STEP03 (IKFCBL00)</strong> → <strong>STEP04 (PAYPROC01)</strong> → <strong>STEP05 (Verify)</strong>
-                </p>
-            </div>
-            <div class="run-card" style="flex:1">
-                <div style="margin-bottom:10px;">
-                    <span class="status-indicator" id="rc-indicator"></span>
-                    <span style="font-size:13px; color:#94a3b8;">Job Execution Status</span>
-                </div>
-                <div class="kpi-value" id="rc-value">—</div>
-                <div class="kpi-sub" style="justify-content:center;" id="rc-time">Awaiting submission</div>
-            </div>
-        </div>
+</main>
 
-        <div class="card">
-            <div class="card-header">
-                <h3>🖥️ JES2 SYSOUT Job Spool Console</h3>
-                <span class="card-badge badge-blue">Class A Batch Log</span>
-            </div>
-            <div class="card-body">
-                <div class="terminal" id="console-output">Awaiting job submission... Click "SUBMIT JOB PAYPROC01" above to initiate execution.</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 6: PAYSLIP REPORT -->
-    <div id="panel-payslip" class="tab-panel">
-        <div class="card">
-            <div class="card-header">
-                <h3>📄 MONTHLY_PAYSLIP_REPORT.txt</h3>
-                <span class="card-badge badge-green">SYSOUT Class A Listing</span>
-            </div>
-            <div class="card-body">
-                <div class="report-pre" id="report-payslip">
-                    <div class="no-data">No report generated yet. Go to "Run Batch" tab to execute the pipeline.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 7: DEPT SUMMARY -->
-    <div id="panel-dept" class="tab-panel">
-        <div class="card">
-            <div class="card-header">
-                <h3>📋 DEPT_PAYROLL_SUMMARY.txt</h3>
-                <span class="card-badge badge-blue">Auditor Reconcile Dataset</span>
-            </div>
-            <div class="card-body">
-                <div class="report-pre" id="report-dept">
-                    <div class="no-data">No report generated yet. Go to "Run Batch" tab to execute the pipeline.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 8: EXCEPTIONS -->
-    <div id="panel-exceptions" class="tab-panel">
-        <div class="card">
-            <div class="card-header">
-                <h3>⚠️ PAYROLL_EXCEPTION_LOG.txt</h3>
-                <span class="card-badge badge-red">Error Queue & Dump</span>
-            </div>
-            <div class="card-body">
-                <div class="report-pre" id="report-exceptions">
-                    <div class="no-data">No report generated yet. Go to "Run Batch" tab to execute the pipeline.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- RACF USER SWITCHER MODAL -->
-<div id="userModal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
-    <div class="modal-card">
+<!-- RACF Identity Switcher Modal -->
+<div id="userModal" class="modal-backdrop" onclick="handleModalOverlayClick(event)">
+    <div class="modal-dialog">
         <div class="modal-header">
-            <h3><span>👤</span> Switch RACF Security Identity</h3>
-            <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            <div class="modal-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Switch RACF Security Persona
+            </div>
+            <button class="modal-close-btn" onclick="closeUserModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <p style="font-size:12px; color:#94a3b8; margin-bottom:12px;">
-                Select a predefined IBM Mainframe RACF Identity to test role-based access control (RBAC), authorization gates, and SMF Type 80 security logging:
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; line-height:1.5;">
+                Select an authentic mainframe user persona to test Role-Based Access Control, SAF authorization gates, and SMF Type 80 audit logging:
             </p>
-            <div class="user-select-grid" id="modal-user-grid">
+            <div class="persona-grid" id="modal-user-grid">
                 <!-- Dynamically populated -->
             </div>
         </div>
@@ -1064,22 +1619,126 @@
     // Global chart instances registry
     const charts = {};
 
-    // Common chart dark theme options
-    const darkChartDefaults = {
-        color: '#94a3b8',
-        borderColor: '#1e293b',
-        font: { family: "'Segoe UI', sans-serif", size: 11 }
-    };
+    // Standardized Refined Enterprise Chart Defaults
     if (window.Chart) {
-        Chart.defaults.color = darkChartDefaults.color;
-        Chart.defaults.borderColor = darkChartDefaults.borderColor;
-        Chart.defaults.font.family = darkChartDefaults.font.family;
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+        Chart.defaults.font.family = "'Inter', -apple-system, sans-serif";
+        Chart.defaults.font.size = 11;
     }
 
     let currentRacfUser = 'IBMUSER';
     let availableUsers = [];
+    let activeReportType = 'payslip';
+    let isTableMode = false;
 
-    // --- Modal Controls ---
+    // --- Currency Formatter ---
+    function fmtCurr(val) {
+        return '$' + Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // --- Primary Navigation Switching ---
+    function switchNavTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+        const targetPane = document.getElementById('pane-' + tabId);
+        if (targetPane) targetPane.classList.add('active');
+
+        const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b =>
+            b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId)
+        );
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Trigger chart resize if navigating to dashboard
+        if (tabId === 'dashboard') {
+            setTimeout(() => {
+                Object.values(charts).forEach(c => { if (c) c.resize(); });
+            }, 60);
+        }
+
+        if (tabId === 'datasets') loadData();
+        if (tabId === 'reports') loadReports();
+        if (tabId === 'security') loadSecurityData();
+        if (tabId === 'batch') loadCurrentUser();
+    }
+
+    // --- Sub-Tab Switching for Datasets ---
+    function switchDatasetSubtab(subId) {
+        document.querySelectorAll('#pane-datasets .subtab-pill').forEach(p => p.classList.remove('active'));
+        document.getElementById('subpane-timecards').style.display = 'none';
+        document.getElementById('subpane-empmaster').style.display = 'none';
+        document.getElementById('subpane-taxrates').style.display = 'none';
+
+        document.getElementById('subpane-' + subId).style.display = 'block';
+        event.target.classList.add('active');
+    }
+
+    // --- Sub-Tab Switching for Reports ---
+    function switchReportSubtab(repId) {
+        document.querySelectorAll('#pane-reports .subtab-pill').forEach(p => p.classList.remove('active'));
+        document.getElementById('subpane-rep-payslip').style.display = 'none';
+        document.getElementById('subpane-rep-dept').style.display = 'none';
+        document.getElementById('subpane-rep-exceptions').style.display = 'none';
+
+        document.getElementById('subpane-rep-' + repId).style.display = 'block';
+        event.target.classList.add('active');
+        activeReportType = repId;
+    }
+
+    // --- Toggle Table vs Raw Spool in Reports ---
+    function toggleReportViewMode() {
+        const rawEl = document.getElementById('rep-payslip-raw');
+        const tblEl = document.getElementById('rep-payslip-table');
+        const btn = document.getElementById('report-view-toggle');
+
+        isTableMode = !isTableMode;
+        if (isTableMode) {
+            rawEl.style.display = 'none';
+            tblEl.style.display = 'block';
+            btn.textContent = 'Switch to Raw SYSOUT Spool View';
+        } else {
+            rawEl.style.display = 'block';
+            tblEl.style.display = 'none';
+            btn.textContent = 'Switch to Formatted Table View';
+        }
+    }
+
+    // --- Copy Console or Report ---
+    function copyConsoleOutput() {
+        const text = document.getElementById('console-output').textContent;
+        navigator.clipboard.writeText(text);
+        alert('Console output copied to clipboard.');
+    }
+
+    function clearConsoleOutput() {
+        document.getElementById('console-output').textContent = 'Console cleared. Click "Submit Batch Job PAYPROC01" to execute.';
+    }
+
+    function copyActiveReport() {
+        let text = '';
+        if (activeReportType === 'payslip') {
+            text = document.getElementById('rep-payslip-raw').textContent;
+        } else if (activeReportType === 'dept') {
+            text = document.getElementById('report-dept').textContent;
+        } else if (activeReportType === 'exceptions') {
+            text = document.getElementById('report-exceptions').textContent;
+        }
+        navigator.clipboard.writeText(text);
+        alert('Report copied to clipboard.');
+    }
+
+    // --- Filter Payslip Table ---
+    function filterPayslipTable() {
+        const query = document.getElementById('payslip-search').value.toLowerCase();
+        const rows = document.querySelectorAll('#payslip-tbody tr');
+        rows.forEach(r => {
+            const text = r.textContent.toLowerCase();
+            r.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+
+    // --- RACF User Switcher Modal ---
     async function openUserModal() {
         const modal = document.getElementById('userModal');
         const grid = document.getElementById('modal-user-grid');
@@ -1093,21 +1752,19 @@
                 const canSubmit = u.privileges.includes('EXECUTE') || u.privileges.includes('ALTER');
                 const canEdit = u.privileges.includes('UPDATE') || u.privileges.includes('ALTER');
                 return `
-                    <div class="user-option-card ${isCur ? 'current' : ''}" onclick="switchUser('${u.userid}')">
+                    <div class="persona-card ${isCur ? 'current' : ''}" onclick="switchUser('${u.userid}')">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="user-opt-name">${u.userid}</span>
-                            <span class="user-opt-badge sec-acl-tag acl-${u.default_auth}">${u.default_auth}</span>
+                            <span class="persona-name">${u.userid}</span>
+                            <span class="badge ${u.default_auth === 'ALTER' ? 'badge-danger' : (u.default_auth === 'EXECUTE' ? 'badge-success' : 'badge-neutral')}">${u.default_auth}</span>
                         </div>
-                        <div class="user-opt-role">${u.name}</div>
-                        <div style="font-size:11px; color:#64748b; font-family:'Consolas',monospace;">Group: <strong>${u.group}</strong></div>
-                        
-                        <div style="margin-top:8px; padding-top:6px; border-top:1px solid #1e293b; font-size:11px; line-height:1.6;">
-                            <div style="color:${canSubmit ? '#4ade80' : '#f87171'}">${canSubmit ? '✅ Can Submit JCL Batch' : '❌ Cannot Submit Batch'}</div>
-                            <div style="color:${canEdit ? '#4ade80' : '#f87171'}">${canEdit ? '✅ Can Edit Timecards' : '🔒 Read-Only Datasets'}</div>
+                        <div class="persona-role">${u.name}</div>
+                        <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Group: <strong>${u.group}</strong></div>
+                        <div style="margin-top:8px; padding-top:6px; border-top:1px solid var(--border-color); font-size:11px; line-height:1.6;">
+                            <div style="color:${canSubmit ? '#10b981' : '#f43f5e'}">${canSubmit ? '✓ Can Submit JCL Batch' : '✕ Batch Execution Restricted'}</div>
+                            <div style="color:${canEdit ? '#10b981' : '#f43f5e'}">${canEdit ? '✓ Can Update Datasets' : '🔒 Read-Only Datasets'}</div>
                         </div>
-
-                        <div style="font-size:10.5px; color:${isCur ? '#4ade80' : '#38bdf8'}; margin-top:8px; font-weight:600;">
-                            ${isCur ? '● ACTIVE SESSION' : 'Click to Switch →'}
+                        <div style="font-size:10.5px; color:${isCur ? 'var(--accent-green)' : 'var(--accent-blue)'}; margin-top:8px; font-weight:600;">
+                            ${isCur ? '● ACTIVE PERSONA' : 'Click to Select →'}
                         </div>
                     </div>
                 `;
@@ -1144,6 +1801,7 @@
         }
     }
 
+    // --- Load Current User Profile & Set Dynamic Permission States ---
     async function loadCurrentUser() {
         try {
             const res = await fetch('/api/auth/current', {
@@ -1153,9 +1811,9 @@
             const u = data.user;
             currentRacfUser = u.userid;
 
-            // Header elements
-            document.getElementById('header-user-id').textContent = u.userid;
-            document.getElementById('header-user-role').textContent = u.group;
+            // Update Navbar
+            document.getElementById('nav-user-id').textContent = u.userid;
+            document.getElementById('nav-user-auth').textContent = u.default_auth;
 
             // Security Tab Elements
             const secBadge = document.getElementById('sec-user-badge');
@@ -1165,13 +1823,13 @@
             const secName = document.getElementById('sec-user-name');
             if (secName) secName.textContent = u.name;
             const secGroup = document.getElementById('sec-group-id');
-            if (secGroup) secGroup.textContent = u.group;
+            if (secGroup) secGroup.textContent = 'Group: ' + u.group;
             const secAuth = document.getElementById('sec-default-auth');
             if (secAuth) secAuth.textContent = u.default_auth + ' AUTHORITY';
 
             const pills = document.getElementById('sec-privileges-pills');
             if (pills) {
-                pills.innerHTML = u.privileges.map(p => `<span class="sec-acl-tag acl-${p}">${p}</span>`).join('');
+                pills.innerHTML = u.privileges.map(p => `<span class="badge badge-info">${p}</span>`).join('');
             }
 
             // Run Tab submitter badge
@@ -1184,7 +1842,7 @@
                 warningEl.style.display = data.can_submit ? 'none' : 'block';
             }
 
-            // Timecard update permissions display on Timecards tab
+            // Timecards Edit Tab permissions locking
             const tcBadge = document.getElementById('tc-auth-badge');
             const tcAlert = document.getElementById('tc-auth-alert');
             const tcSaveBtn = document.getElementById('tc-save-btn');
@@ -1193,212 +1851,54 @@
             if (tcBadge && tcAlert) {
                 if (data.can_edit_timecards) {
                     tcBadge.textContent = 'UPDATE PERMITTED';
-                    tcBadge.className = 'card-badge badge-green';
+                    tcBadge.className = 'badge badge-success';
                     tcAlert.innerHTML = `
-                        <div style="background:#064e3b; color:#6ee7b7; border:1px solid #047857; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:12px;">
-                            ✅ <strong>RACF Authority:</strong> User <code>${u.userid}</code> has <code>UPDATE</code> authority on <code>DATA.INPUT.TIMECARDS</code>. You are authorized to modify and save employee timecard records.
+                        <div style="background:var(--accent-green-subtle); color:#6ee7b7; border:1px solid rgba(16, 185, 129, 0.3); padding:8px 12px; border-radius:var(--radius-sm); font-size:12px; margin-bottom:12px;">
+                            <strong>RACF Access Verified:</strong> User <code>${u.userid}</code> holds <code>UPDATE</code> authority on <code>DATA.INPUT.TIMECARDS</code>. Modifications will be written to disk and logged to SMF 80.
                         </div>
                     `;
                     if (tcSaveBtn) {
                         tcSaveBtn.disabled = false;
-                        tcSaveBtn.style.opacity = '1';
-                        tcSaveBtn.style.cursor = 'pointer';
-                        tcSaveBtn.innerHTML = '💾 Save Timecards Dataset';
+                        tcSaveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path></svg> Save Timecards Dataset';
                     }
-                    if (tcEdit) {
-                        tcEdit.readOnly = false;
-                        tcEdit.style.borderColor = '#334155';
-                        tcEdit.style.cursor = 'text';
-                    }
+                    if (tcEdit) tcEdit.readOnly = false;
                 } else {
-                    tcBadge.textContent = 'READ-ONLY (LACKS UPDATE)';
-                    tcBadge.className = 'card-badge badge-red';
+                    tcBadge.textContent = 'READ-ONLY (ACCESS RESTRICTED)';
+                    tcBadge.className = 'badge badge-danger';
                     tcAlert.innerHTML = `
-                        <div style="background:#7f1d1d; color:#fca5a5; border:1px solid #b91c1c; padding:8px 12px; border-radius:6px; font-size:12px; margin-bottom:12px;">
-                            🔒 <strong>SAF Security Restriction:</strong> User <code>${u.userid}</code> only has <code>READ</code> access on <code>DATA.INPUT.TIMECARDS</code>. Editing is locked. Attempting to save will trigger a <strong>SAF RC=0008 Security Violation</strong>.
+                        <div style="background:var(--accent-rose-subtle); color:#fca5a5; border:1px solid rgba(244, 63, 94, 0.3); padding:8px 12px; border-radius:var(--radius-sm); font-size:12px; margin-bottom:12px;">
+                            <strong>SAF Security Restriction:</strong> User <code>${u.userid}</code> only holds <code>READ</code> access on <code>DATA.INPUT.TIMECARDS</code>. Editing is locked.
                         </div>
                     `;
                     if (tcSaveBtn) {
                         tcSaveBtn.disabled = true;
-                        tcSaveBtn.style.opacity = '0.5';
-                        tcSaveBtn.style.cursor = 'not-allowed';
-                        tcSaveBtn.innerHTML = '🔒 Editing Locked (Read-Only)';
+                        tcSaveBtn.innerHTML = '🔒 Dataset Editing Locked (Read-Only)';
                     }
-                    if (tcEdit) {
-                        tcEdit.readOnly = true;
-                        tcEdit.style.borderColor = '#7f1d1d';
-                        tcEdit.style.cursor = 'not-allowed';
-                    }
+                    if (tcEdit) tcEdit.readOnly = true;
                 }
             }
-
         } catch (e) {
             console.error('Failed to load current user:', e);
         }
     }
 
-    async function loadSecurityData() {
-        try {
-            const resStatus = await fetch('/api/security/status', {
-                headers: { 'X-RACF-User': currentRacfUser }
-            });
-            const secData = await resStatus.json();
-
-            // Cryptographic Dataset Integrity
-            const integrity = secData.integrity;
-            if (integrity) {
-                const badge = document.getElementById('sec-integrity-badge');
-                if (badge) {
-                    badge.textContent = integrity.verified ? 'ALL HASHES VERIFIED' : 'TAMPERING DETECTED';
-                    badge.className = 'card-badge ' + (integrity.verified ? 'badge-green' : 'badge-red');
-                }
-                const manifestTime = document.getElementById('sec-manifest-time');
-                if (manifestTime) manifestTime.textContent = integrity.manifest_time;
-
-                for (const item of integrity.details || []) {
-                    if (item.dataset === 'employee_master.dat') {
-                        const hashEl = document.getElementById('sec-hash-emp');
-                        if (hashEl) hashEl.textContent = 'SHA-256: ' + item.current_hash;
-                        const statusEl = document.getElementById('sec-status-emp');
-                        if (statusEl) {
-                            statusEl.textContent = item.match ? 'VERIFIED' : 'TAMPERED';
-                            statusEl.className = 'card-badge ' + (item.match ? 'badge-green' : 'badge-red');
-                        }
-                    } else if (item.dataset === 'tax_rates_index.dat') {
-                        const hashEl = document.getElementById('sec-hash-tax');
-                        if (hashEl) hashEl.textContent = 'SHA-256: ' + item.current_hash;
-                        const statusEl = document.getElementById('sec-status-tax');
-                        if (statusEl) {
-                            statusEl.textContent = item.match ? 'VERIFIED' : 'TAMPERED';
-                            statusEl.className = 'card-badge ' + (item.match ? 'badge-green' : 'badge-red');
-                        }
-                    }
-                }
-            }
-
-            // RACF Access Control Matrix
-            const profiles = secData.resource_profiles || {};
-            const matrixTbody = document.getElementById('sec-matrix-table');
-            if (matrixTbody) {
-                matrixTbody.innerHTML = Object.entries(profiles).map(([profName, prof]) => `
-                    <tr>
-                        <td class="mono" style="font-weight:700; color:#38bdf8;">${profName}</td>
-                        <td><span class="card-badge badge-blue">${prof.class}</span></td>
-                        <td style="font-size:12px; color:#cbd5e1;">${prof.description}</td>
-                        <td><span class="sec-acl-tag acl-${prof.required}">${prof.required}</span></td>
-                        <td><span class="sec-acl-tag acl-${prof.acl.SYSADMIN || 'NONE'}">${prof.acl.SYSADMIN || 'NONE'}</span></td>
-                        <td><span class="sec-acl-tag acl-${prof.acl.OPERGRP || 'NONE'}">${prof.acl.OPERGRP || 'NONE'}</span></td>
-                        <td><span class="sec-acl-tag acl-${prof.acl.PAYROLL || 'NONE'}">${prof.acl.PAYROLL || 'NONE'}</span></td>
-                        <td><span class="sec-acl-tag acl-${prof.acl.AUDITGRP || 'NONE'}">${prof.acl.AUDITGRP || 'NONE'}</span></td>
-                    </tr>
-                `).join('');
-            }
-
-            // SMF Type 80 Audit Logs
-            const resLogs = await fetch('/api/security/smf-logs?limit=50');
-            const logData = await resLogs.json();
-            const logs = logData.logs || [];
-            
-            const logCountEl = document.getElementById('smf-log-count');
-            if (logCountEl) logCountEl.textContent = `${logs.length} SMF records`;
-
-            const smfTbody = document.getElementById('smf-log-table');
-            if (smfTbody) {
-                if (logs.length === 0) {
-                    smfTbody.innerHTML = '<tr><td colspan="9" class="no-data">No SMF Type 80 records generated yet.</td></tr>';
-                } else {
-                    smfTbody.innerHTML = logs.map(l => `
-                        <tr>
-                            <td class="mono" style="font-size:11px; white-space:nowrap; color:#94a3b8;">${l.timestamp}</td>
-                            <td class="mono" style="font-weight:700; color:#38bdf8;">${l.userid}</td>
-                            <td class="mono" style="font-size:11.5px;">${l.group}</td>
-                            <td><span class="card-badge badge-blue">${l.event}</span></td>
-                            <td class="mono" style="font-size:11.5px; color:#cbd5e1;">${l.resource}</td>
-                            <td><span class="sec-acl-tag acl-${l.intent}">${l.intent}</span></td>
-                            <td><span class="smf-badge smf-${l.status}">${l.status}</span></td>
-                            <td class="mono" style="font-weight:700; color:${l.saf_rc === 'RC=0000' ? '#4ade80' : '#f87171'};">${l.saf_rc}</td>
-                            <td style="font-size:11.5px; color:#94a3b8;">${l.details}</td>
-                        </tr>
-                    `).join('');
-                }
-            }
-
-        } catch (e) {
-            console.error('Failed to load security data:', e);
-        }
-    }
-
-    async function rehashDatasets() {
-        try {
-            const res = await fetch('/api/security/rehash', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-RACF-User': currentRacfUser
-                }
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('✅ RACF Security Manifest: Cryptographic SHA-256 signatures updated successfully.');
-                await loadSecurityData();
-            } else {
-                alert('❌ Security Violation: ' + (data.error || 'Access Denied'));
-            }
-        } catch (e) {
-            alert('❌ Network error: ' + e.message);
-        }
-    }
-
-    // --- Tab switching ---
-    function switchTab(name) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + name).classList.add('active');
-        
-        // Find and highlight matching tab
-        const clickedTab = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick') && t.getAttribute('onclick').includes(name));
-        if (clickedTab) clickedTab.classList.add('active');
-
-        // Resize charts when analytics or dashboard becomes visible
-        if (name === 'dashboard' || name === 'analytics') {
-            setTimeout(() => {
-                Object.values(charts).forEach(c => { if (c) c.resize(); });
-            }, 50);
-        }
-
-        if (name === 'payslip' || name === 'dept' || name === 'exceptions') {
-            loadReports();
-        }
-        if (name === 'security') {
-            loadSecurityData();
-        }
-        if (name === 'data' || name === 'run') {
-            loadCurrentUser();
-        }
-    }
-
-    // Currency Formatter helper
-    function fmtCurr(val) {
-        return '$' + Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    // --- Load input & reference data ---
+    // --- Load Input and Reference Datasets ---
     async function loadData() {
         try {
             const res = await fetch('/api/data');
             const data = await res.json();
 
-            document.getElementById('emp-count-badge').textContent = data.employees.length + ' records';
-            document.getElementById('tax-count-badge').textContent = data.tax_rates.length + ' brackets';
-            document.getElementById('tc-count-badge').textContent = data.timecards.length + ' records';
+            document.getElementById('emp-count-badge').textContent = data.employees.length + ' Employees';
+            document.getElementById('tax-count-badge').textContent = data.tax_rates.length + ' Brackets';
+            document.getElementById('tc-count-badge').textContent = data.timecards.length + ' Records';
 
-            // Employee table
+            // Employee catalog
             const empIds = new Set(data.employees.map(e => e.id));
             document.getElementById('emp-table').innerHTML = data.employees.map(e => `
                 <tr>
-                    <td class="mono" style="font-weight:700; color:#38bdf8;">${e.id}</td>
+                    <td class="mono" style="font-weight:700; color:var(--accent-blue);">${e.id}</td>
                     <td>${e.name}</td>
-                    <td><span class="dept-badge dept-${e.dept}">${e.dept}</span></td>
+                    <td><span class="dept-tag dept-${e.dept}">${e.dept}</span></td>
                     <td class="num">$${e.rate}</td>
                     <td class="num">$${e.insurance}</td>
                 </tr>
@@ -1410,34 +1910,36 @@
                 const fVal = parseFloat(t.federal) || 0;
                 const comb = (sVal + fVal) + '%';
                 return `<tr>
-                    <td class="mono" style="font-size:15px; font-weight:700; color:#4ade80;">${t.bracket}</td>
+                    <td class="mono" style="font-size:13.5px; font-weight:700; color:var(--accent-green);">${t.bracket}</td>
                     <td class="num">${t.state}</td>
                     <td class="num">${t.federal}</td>
-                    <td class="num" style="color:#fcd34d; font-weight:600;">${comb}</td>
+                    <td class="num" style="color:var(--accent-amber); font-weight:600;">${comb}</td>
                 </tr>`;
             }).join('');
 
-            // Timecard table
+            // Timecards table with 4-gate verification indicators
             document.getElementById('tc-table').innerHTML = data.timecards.map(tc => {
                 const isNumId = /^\d{5}$/.test(tc.emp_id);
                 const isValidHours = !isNaN(parseFloat(tc.hours)) && parseFloat(tc.hours) > 0;
                 const exists = empIds.has(tc.emp_id);
                 const validBracket = 'ABCDE'.includes(tc.bracket);
-                let status = 'VALID ✅';
-                let statusClass = 'badge-green';
-                if (!isNumId) { status = 'ERR-01 Bad ID'; statusClass = 'badge-red'; }
-                else if (!isValidHours) { status = 'ERR-01 Zero/Neg Hrs'; statusClass = 'badge-red'; }
-                else if (!exists) { status = 'ERR-02 Non-existent ID'; statusClass = 'badge-red'; }
-                else if (!validBracket) { status = 'ERR-03 Invalid Bracket'; statusClass = 'badge-red'; }
+
+                let status = 'VALID';
+                let statusBadge = 'badge-success';
+                if (!isNumId) { status = 'ERR-01 Bad ID'; statusBadge = 'badge-danger'; }
+                else if (!isValidHours) { status = 'ERR-01 Zero/Neg Hrs'; statusBadge = 'badge-danger'; }
+                else if (!exists) { status = 'ERR-02 Non-existent ID'; statusBadge = 'badge-danger'; }
+                else if (!validBracket) { status = 'ERR-03 Bad Bracket'; statusBadge = 'badge-danger'; }
+
                 return `<tr>
-                    <td class="mono" style="font-weight:700;">${tc.emp_id}</td>
+                    <td class="mono" style="font-weight:600;">${tc.emp_id}</td>
                     <td class="num">${tc.hours} hrs</td>
-                    <td class="mono" style="font-weight:700; color:#fcd34d;">${tc.bracket}</td>
-                    <td><span class="card-badge ${statusClass}">${status}</span></td>
+                    <td class="mono" style="font-weight:600; color:var(--accent-amber);">${tc.bracket}</td>
+                    <td><span class="badge ${statusBadge}">${status}</span></td>
                 </tr>`;
             }).join('');
 
-            // Raw editor
+            // Raw fixed-width editor textarea content
             const rawLines = data.timecards.map(tc => {
                 const h = Math.round(parseFloat(tc.hours) * 10);
                 const hStr = isNaN(h) ? '000' : String(h).padStart(3, '0');
@@ -1450,13 +1952,13 @@
         }
     }
 
-    // --- Load reports and render charts ---
+    // --- Load Reports and Render Charts ---
     async function loadReports() {
         try {
             const res = await fetch('/api/reports');
             const data = await res.json();
 
-            if (data.payslip) document.getElementById('report-payslip').textContent = data.payslip;
+            if (data.payslip) document.getElementById('rep-payslip-raw').textContent = data.payslip;
             if (data.dept_summary) document.getElementById('report-dept').textContent = data.dept_summary;
             if (data.exceptions) document.getElementById('report-exceptions').textContent = data.exceptions;
 
@@ -1467,7 +1969,7 @@
             const analytics = data.analytics;
             if (!analytics) return;
 
-            // Update KPIs
+            // KPI Stat Calculations
             const totals = analytics.totals || {};
             const gross = totals.gross || 0;
             const net = totals.net || 0;
@@ -1482,47 +1984,61 @@
             document.getElementById('kpi-ded').textContent = fmtCurr(ded);
             document.getElementById('kpi-ot').textContent = fmtCurr(ot);
             document.getElementById('kpi-health').textContent = `${valids} / ${totalRecs}`;
-            document.getElementById('kpi-err-sub').textContent = `${errors} exception records caught`;
+            document.getElementById('kpi-err-sub').textContent = `${errors} quarantined records`;
 
             if (gross > 0) {
                 const netPct = ((net / gross) * 100).toFixed(1);
                 document.getElementById('kpi-net-pct').textContent = `${netPct}%`;
             }
 
-            // Overview Department Table
+            // Department Table in Overview
             const depts = analytics.departments || [];
             if (depts.length > 0) {
                 document.getElementById('overview-dept-table').innerHTML = depts.map(d => `
                     <tr>
-                        <td><span class="dept-badge dept-${d.dept}">${d.dept}</span></td>
+                        <td><span class="dept-tag dept-${d.dept}">${d.dept}</span></td>
                         <td>${d.headcount} employees</td>
                         <td class="num">${fmtCurr(d.gross)}</td>
-                        <td class="num" style="color:#f87171;">${fmtCurr(d.deduct)}</td>
-                        <td class="num" style="color:#4ade80; font-weight:700;">${fmtCurr(d.net)}</td>
+                        <td class="num" style="color:var(--accent-rose);">${fmtCurr(d.deduct)}</td>
+                        <td class="num" style="color:var(--accent-green); font-weight:700;">${fmtCurr(d.net)}</td>
                     </tr>
                 `).join('');
             }
 
-            // Render all 6 charts with analytics
+            // Payslip Interactive Table
+            const employees = analytics.employees || [];
+            if (employees.length > 0) {
+                document.getElementById('payslip-tbody').innerHTML = employees.map(e => `
+                    <tr>
+                        <td class="mono" style="font-weight:700; color:var(--accent-blue);">${e.id}</td>
+                        <td>${e.name}</td>
+                        <td><span class="dept-tag dept-${e.dept}">${e.dept}</span></td>
+                        <td class="num">${e.hours}</td>
+                        <td class="num">${fmtCurr(e.reg_pay)}</td>
+                        <td class="num" style="color:var(--accent-amber);">${fmtCurr(e.ot_pay)}</td>
+                        <td class="num" style="font-weight:600;">${fmtCurr(e.gross)}</td>
+                        <td class="num" style="color:var(--accent-rose);">${fmtCurr(e.deduct)}</td>
+                        <td class="num" style="color:var(--accent-green); font-weight:700;">${fmtCurr(e.net)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Render all Charts
             renderCharts(analytics);
 
         } catch (e) {
-            console.error('Failed to load reports & analytics:', e);
+            console.error('Failed to load reports:', e);
         }
     }
 
-    // --- Render or Update all charts ---
+    // --- Render Professional Chart.js Visualizations ---
     function renderCharts(analytics) {
-        if (!window.Chart) {
-            console.warn('Chart.js not loaded yet');
-            return;
-        }
+        if (!window.Chart) return;
 
         const depts = analytics.departments || [];
         const employees = analytics.employees || [];
         const totals = analytics.totals || {};
         const deptOt = analytics.dept_ot || {};
-        const exceptions = analytics.exceptions || [];
         const errorCounts = analytics.error_counts || {};
 
         const deptLabels = depts.map(d => d.dept);
@@ -1530,9 +2046,7 @@
         const deptDeduct = depts.map(d => d.deduct);
         const deptNet = depts.map(d => d.net);
 
-        // -------------------------------------------------------------
-        // CHART 1: Overview Department Payroll Bar Chart
-        // -------------------------------------------------------------
+        // Chart 1: Overview Department Bar Chart
         const ctxDept = document.getElementById('overviewDeptChart');
         if (ctxDept) {
             if (charts.dept) charts.dept.destroy();
@@ -1541,22 +2055,22 @@
                 data: {
                     labels: deptLabels,
                     datasets: [
-                        { label: 'Total Gross ($)', data: deptGross, backgroundColor: '#38bdf8', borderRadius: 4 },
-                        { label: 'Deductions & Tax ($)', data: deptDeduct, backgroundColor: '#f87171', borderRadius: 4 },
-                        { label: 'Net Disbursed ($)', data: deptNet, backgroundColor: '#4ade80', borderRadius: 4 }
+                        { label: 'Gross Wages', data: deptGross, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Taxes & Deductions', data: deptDeduct, backgroundColor: '#f43f5e', borderRadius: 4 },
+                        { label: 'Net Disbursed', data: deptNet, backgroundColor: '#10b981', borderRadius: 4 }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 12, padding: 14 } },
+                        legend: { position: 'top', labels: { boxWidth: 10, padding: 12 } },
                         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtCurr(ctx.raw)}` } }
                     },
                     scales: {
                         y: {
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { callback: val => '$' + (val >= 1000 ? (val / 1000) + 'k' : val) }
+                            ticks: { callback: v => '$' + (v >= 1000 ? (v / 1000) + 'k' : v) }
                         },
                         x: { grid: { display: false } }
                     }
@@ -1564,9 +2078,7 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // CHART 2: Overview Payroll Allocation Donut Chart
-        // -------------------------------------------------------------
+        // Chart 2: Payroll Allocation Donut
         const ctxDist = document.getElementById('overviewDistChart');
         if (ctxDist) {
             if (charts.dist) charts.dist.destroy();
@@ -1575,13 +2087,12 @@
             charts.dist = new Chart(ctxDist, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Net Salary Disbursal', 'Taxes & Insurance Deductions'],
+                    labels: ['Net Salary Take-Home', 'Taxes & Insurance Withholdings'],
                     datasets: [{
                         data: [netVal, dedVal],
-                        backgroundColor: ['#4ade80', '#f87171'],
-                        borderColor: '#172339',
-                        borderWidth: 3,
-                        hoverOffset: 6
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderColor: '#111827',
+                        borderWidth: 3
                     }]
                 },
                 options: {
@@ -1589,7 +2100,7 @@
                     maintainAspectRatio: false,
                     cutout: '68%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16 } },
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14 } },
                         tooltip: {
                             callbacks: {
                                 label: ctx => {
@@ -1604,9 +2115,7 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // CHART 3: Regular vs Overtime by Dept (Stacked Bar)
-        // -------------------------------------------------------------
+        // Chart 3: Regular vs Overtime by Dept (Stacked Bar)
         const ctxOt = document.getElementById('deptOtChart');
         if (ctxOt) {
             if (charts.ot) charts.ot.destroy();
@@ -1618,22 +2127,22 @@
                 data: {
                     labels: deptLabels,
                     datasets: [
-                        { label: 'Regular Base Pay ($)', data: regList, backgroundColor: '#3b82f6', stack: 'deptStack' },
-                        { label: 'Overtime Premium 1.5x ($)', data: otList, backgroundColor: '#fb923c', stack: 'deptStack' }
+                        { label: 'Regular Base Pay', data: regList, backgroundColor: '#3b82f6', stack: 'dStack' },
+                        { label: 'Overtime Premium (1.5×)', data: otList, backgroundColor: '#f59e0b', stack: 'dStack' }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 12, padding: 14 } },
+                        legend: { position: 'top', labels: { boxWidth: 10, padding: 12 } },
                         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtCurr(ctx.raw)}` } }
                     },
                     scales: {
                         y: {
                             stacked: true,
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { callback: val => '$' + val }
+                            ticks: { callback: v => '$' + v }
                         },
                         x: { stacked: true, grid: { display: false } }
                     }
@@ -1641,13 +2150,10 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // CHART 4: Employee Gross vs Net Leaderboard (Horizontal Bar)
-        // -------------------------------------------------------------
+        // Chart 4: Compensation Leaderboard (Horizontal Bar)
         const ctxComp = document.getElementById('empCompChart');
         if (ctxComp) {
             if (charts.comp) charts.comp.destroy();
-            // Sort employees by gross descending
             const sortedEmps = [...employees].sort((a, b) => b.gross - a.gross);
             const empNames = sortedEmps.map(e => e.name.split(',')[0]);
             const empGross = sortedEmps.map(e => e.gross);
@@ -1658,8 +2164,8 @@
                 data: {
                     labels: empNames,
                     datasets: [
-                        { label: 'Gross Pay ($)', data: empGross, backgroundColor: '#38bdf8', borderRadius: 4 },
-                        { label: 'Net Take-Home ($)', data: empNet, backgroundColor: '#4ade80', borderRadius: 4 }
+                        { label: 'Gross Pay', data: empGross, backgroundColor: '#3b82f6', borderRadius: 4 },
+                        { label: 'Net Pay', data: empNet, backgroundColor: '#10b981', borderRadius: 4 }
                     ]
                 },
                 options: {
@@ -1667,13 +2173,13 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 12, padding: 12 } },
+                        legend: { position: 'top', labels: { boxWidth: 10, padding: 12 } },
                         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtCurr(ctx.raw)}` } }
                     },
                     scales: {
                         x: {
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { callback: val => '$' + val }
+                            ticks: { callback: v => '$' + v }
                         },
                         y: { grid: { display: false } }
                     }
@@ -1681,9 +2187,7 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // CHART 5: Hours Logged vs. 40.0h Baseline (Bar + Line)
-        // -------------------------------------------------------------
+        // Chart 5: Hours Worked vs 40.0h Baseline (Bar + Line)
         const ctxHours = document.getElementById('hoursChart');
         if (ctxHours) {
             if (charts.hours) charts.hours.destroy();
@@ -1697,7 +2201,7 @@
                     datasets: [
                         {
                             type: 'line',
-                            label: 'Standard Threshold (40.0 hrs)',
+                            label: 'Standard Baseline (40.0h)',
                             data: baseline40,
                             borderColor: '#f59e0b',
                             borderWidth: 2,
@@ -1707,9 +2211,9 @@
                         },
                         {
                             type: 'bar',
-                            label: 'Hours Worked',
+                            label: 'Hours Logged',
                             data: hValues,
-                            backgroundColor: hValues.map(h => (h > 40.0 ? '#fb923c' : '#38bdf8')),
+                            backgroundColor: hValues.map(h => (h > 40.0 ? '#f59e0b' : '#3b82f6')),
                             borderRadius: 4
                         }
                     ]
@@ -1718,12 +2222,12 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 12, padding: 12 } },
+                        legend: { position: 'top', labels: { boxWidth: 10, padding: 12 } },
                         tooltip: {
                             callbacks: {
                                 label: ctx => {
                                     const val = ctx.raw;
-                                    const ot = val > 40 ? ` (+${(val - 40).toFixed(1)}h OT)` : '';
+                                    const ot = val > 40 ? ` (+${(val - 40).toFixed(1)}h Overtime)` : '';
                                     return ` ${ctx.dataset.label}: ${val} hrs${ot}`;
                                 }
                             }
@@ -1733,7 +2237,7 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { callback: val => val + 'h' }
+                            ticks: { callback: v => v + 'h' }
                         },
                         x: { grid: { display: false } }
                     }
@@ -1741,9 +2245,7 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // CHART 6: Validation Health & Error Categories Donut
-        // -------------------------------------------------------------
+        // Chart 6: Defensive Quality Gates Donut
         const ctxVal = document.getElementById('validationChart');
         if (ctxVal) {
             if (charts.val) charts.val.destroy();
@@ -1756,59 +2258,48 @@
                 type: 'doughnut',
                 data: {
                     labels: [
-                        `Valid Timecards (${validCount})`,
-                        `ERR-01 Invalid Hours/ID (${err01Count})`,
-                        `ERR-02 Not Found in DB2 (${err02Count})`,
-                        ...(err03Count > 0 ? [`ERR-03 Invalid Tax Bracket (${err03Count})`] : [])
+                        `Valid Records Processed (${validCount})`,
+                        `ERR-01 Invalid Format / Hours (${err01Count})`,
+                        `ERR-02 Master Lookup Mismatch (${err02Count})`,
+                        ...(err03Count > 0 ? [`ERR-03 Bad Tax Bracket (${err03Count})`] : [])
                     ],
                     datasets: [{
                         data: [validCount, err01Count, err02Count, ...(err03Count > 0 ? [err03Count] : [])],
-                        backgroundColor: ['#22c55e', '#ef4444', '#a855f7', '#eab308'],
-                        borderColor: '#172339',
+                        backgroundColor: ['#10b981', '#f43f5e', '#8b5cf6', '#f59e0b'],
+                        borderColor: '#111827',
                         borderWidth: 3
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '64%',
+                    cutout: '66%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } },
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => {
-                                    const sum = validCount + err01Count + err02Count + err03Count;
-                                    const pct = ((ctx.raw / sum) * 100).toFixed(1);
-                                    return ` ${ctx.label}: ${ctx.raw} records (${pct}%)`;
-                                }
-                            }
-                        }
+                        legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } }
                     }
                 }
             });
         }
     }
 
-    // --- Run Batch Execution ---
+    // --- Execute Batch JCL Pipeline ---
     async function runBatch() {
         const btn = document.getElementById('run-btn');
-        const console_el = document.getElementById('console-output');
-        const rcValue = document.getElementById('rc-value');
-        const rcTime = document.getElementById('rc-time');
-        const rcInd = document.getElementById('rc-indicator');
-        const info = document.getElementById('run-info');
-        const statusBadge = document.getElementById('batch-status-badge');
+        const consoleEl = document.getElementById('console-output');
+        const statusDot = document.getElementById('nav-status-dot');
+        const statusText = document.getElementById('nav-status-text');
+        const badge = document.getElementById('batch-status-badge');
         const overviewRc = document.getElementById('overview-rc');
+        const info = document.getElementById('run-info');
 
         btn.disabled = true;
-        btn.classList.add('running');
-        btn.innerHTML = '<span>⏳</span> JOB PAYPROC01 RUNNING...';
-        info.innerHTML = '<span style="color:#fcd34d;">Executing 6-step batch pipeline via WSL Ubuntu...</span>';
-        console_el.textContent = `>> SUBMITTING BATCH JOB PAYPROC01 (CLASS=A)...\n>> RACF SUBMITTER: ${currentRacfUser}\n>> DISPATCHING TO WSL GnuCOBOL WORKSPACE...\n\n`;
-        rcValue.textContent = 'RUNNING';
-        rcInd.className = 'status-indicator status-wait';
-        statusBadge.textContent = 'RUNNING';
-        statusBadge.className = 'card-badge badge-yellow';
+        btn.innerHTML = 'Executing 6-Step Pipeline...';
+        statusDot.className = 'status-dot running';
+        statusText.textContent = 'Batch Job Executing';
+        badge.textContent = 'RUNNING';
+        badge.className = 'badge badge-warning';
+
+        consoleEl.textContent = `>> SUBMITTING BATCH JOB PAYPROC01 VIA JES2 (CLASS=A)...\n>> RACF SUBMITTER: ${currentRacfUser}\n>> DISPATCHING TO WSL GnuCOBOL WORKSPACE...\n\n`;
 
         try {
             const res = await fetch('/api/run', {
@@ -1820,50 +2311,49 @@
             });
             const data = await res.json();
 
-            console_el.textContent = data.output || 'No output received.';
-            console_el.scrollTop = console_el.scrollHeight;
+            consoleEl.textContent = data.output || 'No output received.';
+            consoleEl.scrollTop = consoleEl.scrollHeight;
 
             const rc = data.return_code;
             const rcFormatted = 'RC=' + String(rc).padStart(4, '0');
-            rcValue.textContent = rcFormatted;
             overviewRc.textContent = rcFormatted;
-            rcTime.textContent = 'Ended: ' + data.timestamp;
 
             if (data.security_violation || rc === 16) {
-                rcInd.className = 'status-indicator status-err';
-                overviewRc.style.color = '#f87171';
-                statusBadge.textContent = 'SECURITY ABEND (RC=0016)';
-                statusBadge.className = 'card-badge badge-red';
-                info.innerHTML = `🔒 <span style="color:#f87171; font-weight:600;">SAF Security Violation — Access Denied for ${currentRacfUser}</span>`;
+                statusDot.className = 'status-dot error';
+                statusText.textContent = 'Security ABEND (RC=0016)';
+                badge.textContent = 'SECURITY ABEND (RC=0016)';
+                badge.className = 'badge badge-danger';
+                overviewRc.style.color = 'var(--accent-rose)';
+                info.innerHTML = `<span style="color:var(--accent-rose); font-weight:600;">SAF Security Violation — Access Denied for ${currentRacfUser}</span>`;
             } else if (rc === 0) {
-                rcInd.className = 'status-indicator status-ok';
-                overviewRc.style.color = '#4ade80';
-                statusBadge.textContent = 'COMPLETED (RC=0000)';
-                statusBadge.className = 'card-badge badge-green';
-                info.innerHTML = '✅ <span style="color:#4ade80; font-weight:600;">Job completed successfully — All 6 Steps RC=0000</span>';
+                statusDot.className = 'status-dot';
+                statusText.textContent = 'All Steps RC=0000';
+                badge.textContent = 'COMPLETED (RC=0000)';
+                badge.className = 'badge badge-success';
+                overviewRc.style.color = 'var(--accent-green)';
+                info.innerHTML = `<span style="color:var(--accent-green); font-weight:600;">Job completed successfully — All 6 Steps executed with RC=0000.</span>`;
             } else {
-                rcInd.className = 'status-indicator status-err';
-                overviewRc.style.color = '#f87171';
-                statusBadge.textContent = `FAILED (${rcFormatted})`;
-                statusBadge.className = 'card-badge badge-red';
-                info.innerHTML = `❌ <span style="color:#f87171; font-weight:600;">Job ABEND with ${rcFormatted}</span>`;
+                statusDot.className = 'status-dot error';
+                statusText.textContent = `Job ABEND (${rcFormatted})`;
+                badge.textContent = `FAILED (${rcFormatted})`;
+                badge.className = 'badge badge-danger';
+                overviewRc.style.color = 'var(--accent-rose)';
+                info.innerHTML = `<span style="color:var(--accent-rose); font-weight:600;">Job ABEND with ${rcFormatted}</span>`;
             }
 
-            // Immediately reload reports, parsed data, security audit logs, and charts
+            // Refresh all outputs and security trails
             await loadReports();
             await loadData();
             await loadSecurityData();
 
         } catch (e) {
-            console_el.textContent += '\n\n** COMMUNICATION ERROR: ' + e.message;
-            rcValue.textContent = 'ABEND';
-            rcInd.className = 'status-indicator status-err';
-            info.innerHTML = '❌ <span style="color:#f87171;">Failed to connect to backend server.</span>';
+            consoleEl.textContent += '\n\n** COMMUNICATION ERROR: ' + e.message;
+            statusDot.className = 'status-dot error';
+            statusText.textContent = 'Connection Error';
         }
 
         btn.disabled = false;
-        btn.classList.remove('running');
-        btn.innerHTML = '<span>▶</span> SUBMIT JOB PAYPROC01';
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Submit Batch Job PAYPROC01';
     }
 
     // --- Save Modified Timecards ---
@@ -1881,16 +2371,130 @@
             });
             const data = await res.json();
             if (data.success) {
-                statusEl.innerHTML = '<span style="color:#4ade80; font-weight:600;">✅ Saved to raw_timecards.dat!</span>';
+                statusEl.innerHTML = '<span style="color:var(--accent-green); font-weight:600;">✓ Dataset written successfully</span>';
                 await loadData();
                 await loadSecurityData();
             } else {
-                statusEl.innerHTML = '<span style="color:#f87171; font-weight:600;">❌ ' + data.error + '</span>';
+                statusEl.innerHTML = '<span style="color:var(--accent-rose); font-weight:600;">✕ ' + data.error + '</span>';
             }
         } catch (e) {
-            statusEl.innerHTML = '<span style="color:#f87171; font-weight:600;">❌ ' + e.message + '</span>';
+            statusEl.innerHTML = '<span style="color:var(--accent-rose); font-weight:600;">✕ ' + e.message + '</span>';
         }
         setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+    }
+
+    // --- Load Security Status & SMF Logs ---
+    async function loadSecurityData() {
+        try {
+            const resStatus = await fetch('/api/security/status', {
+                headers: { 'X-RACF-User': currentRacfUser }
+            });
+            const secData = await resStatus.json();
+
+            // Cryptographic Dataset Integrity
+            const integrity = secData.integrity;
+            if (integrity) {
+                const badge = document.getElementById('sec-integrity-badge');
+                if (badge) {
+                    badge.textContent = integrity.verified ? 'ALL SIGNATURES VALID' : 'TAMPERING DETECTED';
+                    badge.className = 'badge ' + (integrity.verified ? 'badge-success' : 'badge-danger');
+                }
+                const manifestTime = document.getElementById('sec-manifest-time');
+                if (manifestTime) manifestTime.textContent = integrity.manifest_time;
+
+                for (const item of integrity.details || []) {
+                    if (item.dataset === 'employee_master.dat') {
+                        const hashEl = document.getElementById('sec-hash-emp');
+                        if (hashEl) hashEl.textContent = 'SHA-256: ' + item.current_hash;
+                        const statusEl = document.getElementById('sec-status-emp');
+                        if (statusEl) {
+                            statusEl.textContent = item.match ? 'MATCHED' : 'TAMPERED';
+                            statusEl.className = 'badge ' + (item.match ? 'badge-success' : 'badge-danger');
+                        }
+                    } else if (item.dataset === 'tax_rates_index.dat') {
+                        const hashEl = document.getElementById('sec-hash-tax');
+                        if (hashEl) hashEl.textContent = 'SHA-256: ' + item.current_hash;
+                        const statusEl = document.getElementById('sec-status-tax');
+                        if (statusEl) {
+                            statusEl.textContent = item.match ? 'MATCHED' : 'TAMPERED';
+                            statusEl.className = 'badge ' + (item.match ? 'badge-success' : 'badge-danger');
+                        }
+                    }
+                }
+            }
+
+            // RACF Access Control Matrix
+            const profiles = secData.resource_profiles || {};
+            const matrixTbody = document.getElementById('sec-matrix-table');
+            if (matrixTbody) {
+                matrixTbody.innerHTML = Object.entries(profiles).map(([profName, prof]) => `
+                    <tr>
+                        <td class="mono" style="font-weight:700; color:var(--accent-blue);">${profName}</td>
+                        <td><span class="badge badge-neutral">${prof.class}</span></td>
+                        <td style="font-size:12px; color:var(--text-secondary);">${prof.description}</td>
+                        <td><span class="badge badge-info">${prof.required}</span></td>
+                        <td><span class="badge ${prof.acl.SYSADMIN === 'ALTER' ? 'badge-danger' : 'badge-neutral'}">${prof.acl.SYSADMIN || 'NONE'}</span></td>
+                        <td><span class="badge ${prof.acl.OPERGRP === 'EXECUTE' ? 'badge-success' : 'badge-neutral'}">${prof.acl.OPERGRP || 'NONE'}</span></td>
+                        <td><span class="badge ${prof.acl.PAYROLL === 'UPDATE' ? 'badge-info' : 'badge-neutral'}">${prof.acl.PAYROLL || 'NONE'}</span></td>
+                        <td><span class="badge ${prof.acl.AUDITGRP === 'READ' ? 'badge-neutral' : 'badge-neutral'}">${prof.acl.AUDITGRP || 'NONE'}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            // SMF Type 80 Audit Logs
+            const resLogs = await fetch('/api/security/smf-logs?limit=50');
+            const logData = await resLogs.json();
+            const logs = logData.logs || [];
+
+            const logCountEl = document.getElementById('smf-log-count');
+            if (logCountEl) logCountEl.textContent = `${logs.length} SMF records`;
+
+            const smfTbody = document.getElementById('smf-log-table');
+            if (smfTbody) {
+                if (logs.length === 0) {
+                    smfTbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">No SMF Type 80 records generated yet.</td></tr>';
+                } else {
+                    smfTbody.innerHTML = logs.map(l => `
+                        <tr>
+                            <td class="mono" style="font-size:11px; white-space:nowrap; color:var(--text-muted);">${l.timestamp}</td>
+                            <td class="mono" style="font-weight:700; color:var(--accent-blue);">${l.userid}</td>
+                            <td class="mono" style="font-size:11.5px;">${l.group}</td>
+                            <td><span class="badge badge-neutral">${l.event}</span></td>
+                            <td class="mono" style="font-size:11.5px; color:#cbd5e1;">${l.resource}</td>
+                            <td><span class="badge badge-info">${l.intent}</span></td>
+                            <td><span class="badge ${l.status === 'PERMITTED' ? 'badge-success' : 'badge-danger'}">${l.status}</span></td>
+                            <td class="mono" style="font-weight:700; color:${l.saf_rc === 'RC=0000' ? 'var(--accent-green)' : 'var(--accent-rose)'};">${l.saf_rc}</td>
+                            <td style="font-size:11.5px; color:var(--text-secondary);">${l.details}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+        } catch (e) {
+            console.error('Failed to load security telemetry:', e);
+        }
+    }
+
+    // --- Re-hash Datasets ---
+    async function rehashDatasets() {
+        try {
+            const res = await fetch('/api/security/rehash', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-RACF-User': currentRacfUser
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Cryptographic SHA-256 signatures updated successfully.');
+                await loadSecurityData();
+            } else {
+                alert('Security Violation: ' + (data.error || 'Access Denied'));
+            }
+        } catch (e) {
+            alert('Network error: ' + e.message);
+        }
     }
 
     // Initialize application on DOM ready
